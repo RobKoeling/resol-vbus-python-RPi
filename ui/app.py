@@ -88,5 +88,5 @@ def under_construction():
 
 
 if __name__ == '__main__':
-    # Run development server for quick testing
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    # Run development server for quick testing (listen on all interfaces so other hosts can connect)
+    app.run(host='0.0.0.0', port=5000, debug=True)

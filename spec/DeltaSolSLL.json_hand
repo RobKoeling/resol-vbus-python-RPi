@@ -1,0 +1,210 @@
+{
+  "vbusSpecification": {
+    "device": [
+	  {
+        "address": "0x2271",
+        "mask": "0xFFFF",
+        "name": "DeltaSol SLL",
+        "isMaster": "true"
+      }
+    ],
+    "packet": [
+	  {
+	  "destination": "0x0010",
+      "source": "0x2271",
+      "command": "0x0100",
+      "field": [
+        {
+          "offset": "0",
+          "name": [
+            "Systemdatum",
+            {
+              "-lang": "en",
+              "#text": "System date"
+            }
+          ],
+          "bitSize": "31",
+          "format": "r"
+        },
+        {
+          "offset": "4",
+          "name": [
+            "Temperatur Sensor 1",
+            {
+              "-lang": "en",
+              "#text": "Temperature sensor 1"
+            }
+          ],
+          "bitSize": "15",
+          "factor": "0.1",
+          "unit": " °C"
+        },
+        {
+          "offset": "6",
+          "name": [
+            "Temperatur Sensor 2",
+            {
+              "-lang": "en",
+              "#text": "Temperature sensor 2"
+            }
+          ],
+          "bitSize": "15",
+          "factor": "0.1",
+          "unit": " °C"
+        },
+        {
+          "offset": "8",
+          "name": [
+            "Temperatur Sensor 3",
+            {
+              "-lang": "en",
+              "#text": "Temperature sensor 3"
+            }
+          ],
+          "bitSize": "15",
+          "factor": "0.1",
+          "unit": " °C"
+        },
+        {
+          "offset": "10",
+          "name": [
+            "Temperatur Sensor 4",
+            {
+              "-lang": "en",
+              "#text": "Temperature sensor 4"
+            }
+          ],
+          "bitSize": "15",
+          "factor": "0.1",
+          "unit": " °C"
+        },
+        {
+          "offset": "12",
+          "name": [
+            "TAGE",
+            {
+              "-lang": "en",
+              "#text": "Days"
+            }
+          ],
+          "bitSize": "16",
+          "unit": " %"
+        },
+        {
+          "offset": "16",
+          "name": [
+            "Durchfluss V40",
+            {
+              "-lang": "en",
+              "#text": "Flow V40"
+            }
+          ],
+          "bitSize": "31",
+          "unit": " l/h"
+        },
+        {
+          "offset": "20",
+          "name": [
+            "Pump Speed 1",
+            {
+              "-lang": "en",
+              "#text": "Pump Speed 1"
+            }
+          ],
+            "bitSize": "8",
+	    "unit": " %"
+        },
+        {
+          "offset": "21",
+          "name": [
+            "Pump Speed 2",
+            {
+              "-lang": "en",
+              "#text": "Pump Speed 2"
+            }
+          ],
+            "bitSize": "8",
+	    "unit": " %"
+        },
+        {
+          "offset": "22",
+          "name": [
+            "Pump Speed 3",
+            {
+              "-lang": "en",
+              "#text": "Pump Speed 3"
+            }
+          ],
+            "bitSize": "8",
+	    "unit": " %"
+        },
+        {
+          "name": [
+            "Wärmemenge",
+            {
+              "-lang": "en",
+              "#text": "Heat quantity"
+            }
+          ],
+          "unit": " Wh",
+          "field": [
+            {
+              "offset": "24",
+              "bitSize": "16",
+              "factor": "1"
+            },
+            {
+              "offset": "26",
+              "bitSize": "16",
+              "factor": "1000"
+            }
+          ]
+        },
+        {
+          "offset": "28",
+          "name": ["Version"],
+          "bitSize": "16",
+          "factor": "0.01"
+        },
+        {
+          "offset": "32",
+          "name": [
+            "Betriebsstunden Relais 1",
+            {
+              "-lang": "en",
+              "#text": "Operating hours relais 1"
+            }
+          ],
+          "bitSize": "32",
+          "factor": "1"
+        },
+        {
+          "offset": "36",
+          "name": [
+            "Betriebsstunden Relais 2",
+            {
+              "-lang": "en",
+              "#text": "Operating hours relais 2"
+            }
+          ],
+          "bitSize": "32",
+          "factor": "1"
+        },	  
+        {
+          "offset": "40",
+          "name": [
+            "Betriebsstunden Relais 3",
+            {
+              "-lang": "en",
+              "#text": "Operating hours relais 3"
+            }
+          ],
+          "bitSize": "16",
+          "factor": "1"
+        }
+      ]
+	  }
+	]
+  }
+}
+

@@ -16,7 +16,7 @@
 			"field": [
 				{
 					"offset": "0",
-					"name": [ "Systemdatum",
+					"name": [ "System Date",
 						{
                                                  "-lang": "en",
                                                  "#text": "System Date"
@@ -29,7 +29,7 @@
 				},
 				{
 					"offset": "4",
-					"name": [ "Temperatur Sensor 1",
+					"name": [ "Temp. Sensor 1",
 						{
 						 "-lang": "en",
 						 "#text": "Temp. Sensor 1"
@@ -41,7 +41,7 @@
 				},
 				{
 					"offset": "6",
-					"name": [ "Temperatur Sensor 2",
+					"name": [ "Temp. Sensor 2",
 						{
                                                  "-lang": "en",
                                                  "#text": "Temp. Sensor 2"
@@ -53,7 +53,7 @@
 				},
 				{
 					"offset": "8",
-					"name": [ "Temperatur Sensor 3",
+					"name": [ "Temp. Sensor 3",
 						{
                                                  "-lang": "en",
                                                  "#text": "Temp. Sensor 3"
@@ -65,7 +65,7 @@
 				},
 				{
 					"offset": "10",
-					"name": [ "Temperatur Sensor 4",
+					"name": [ "Temp. Sensor 4",
 						{
                                                  "-lang": "en",
                                                  "#text": "Temp. Sensor 1"
@@ -77,7 +77,7 @@
 				},
 				{
 					"offset": "12",
-					"name": [ "TAGE",
+					"name": [ "Days",
 						{
                                                  "-lang": "en",
                                                  "#text": "Days"
@@ -89,7 +89,7 @@
 				},
 				{
 					"offset": "16",
-					"name": [ "Volumenstrom V40",
+					"name": [ "Flow rate V40",
 						{
                                                  "-lang": "en",
                                                  "#text": "Flow V40"
@@ -101,7 +101,7 @@
 				},
 				{
 					"offset": "20",
-					"name": [ "Drehzahl Relais 1",
+					"name": [ "Pump Speed Relay 1",
 						{
                                                  "-lang": "en",
                                                  "#text": "Pump 1"
@@ -113,7 +113,7 @@
 				},
 				{
 					"offset": "21",
-					"name": [ "Drehzahl Relais 2",
+					"name": [ "Pump Speed Relay 2",
 						{
                                                  "-lang": "en",
                                                  "#text": "Pump 2"
@@ -125,10 +125,10 @@
 				},
 				{
 					"offset": "22",
-					"name": [ "Drehzahl Relais 4",
+					"name": [ "Pump Speed Relay 3",
 						{
                                                  "-lang": "en",
-                                                 "#text": "Pump 4"
+                                                 "#text": "Pump 3"
                                                 }
                                                 ],
 					"bitSize": "7",
@@ -137,7 +137,7 @@
 				},
 				{
 					"offset": "24",
-					"name": [ "Wärmemenge",
+					"name": [ "Heat quantity",
 						{
                                                  "-lang": "en",
                                                  "#text": "Heat Quantity"
@@ -161,10 +161,10 @@
 				},
 				{
 					"offset": "32",
-					"name": [ "Betriebsstunden Relais 1",
+					"name": [ "Operating Hours Relay 1",
 						{
                                                  "-lang": "en",
-                                                 "#text": "Hours Pump 1"
+                                                 "#text": "Operating Hours Relay 1"
                                                 }
                                                 ],
 					"bitSize": "31",
@@ -173,10 +173,10 @@
 				},
 				{
 					"offset": "36",
-					"name": [ "Betriebsstunden Relais 2",
+					"name": [ "Operating Hours Relay 2",
 						{
                                                  "-lang": "en",
-                                                 "#text": "Hours Pump 2"
+                                                 "#text": "Operating Hours Relay 2"
                                                 }
                                                 ],
 					"bitSize": "31",
@@ -185,10 +185,10 @@
 				},
 				{
 					"offset": "40",
-					"name": [ "Betriebsstunden Relais 3",
+					"name": [ "Operating Hours Relay 3",
 						{
                                                  "-lang": "en",
-                                                 "#text": "Hours Pump 3"
+                                                 "#text": "Operating Hours Relay 3"
                                                 }
                                                 ],
 					"bitSize": "31",
@@ -197,133 +197,152 @@
 				},
 				{
 					"offset": "44",
-					"name": "Urlaubsfunktion",
+					"name": [ "Holiday Function",
+						{ } ],
 					"bitSize": "1",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "45",
-					"name": "Blockierschutz 1",
+					"name": [ "Blocking protection 1",
+						{ } ],
 					"bitSize": "7",
 					"factor": "1.0",
 					"unit": "%"
 				},
 				{
 					"offset": "46",
-					"name": "Blockierschutz 2",
+					"name": [ "Blocking protection 2",
+						{ } ],
 					"bitSize": "7",
 					"factor": "1.0",
 					"unit": "%"
 				},
 				{
 					"offset": "47",
-					"name": "Blockierschutz 3",
+					"name": [ "Blocking protection 3",
+						{ } ],
 					"bitSize": "7",
 					"factor": "1.0",
 					"unit": "%"
 				},
 				{
 					"offset": "48",
-					"name": "Initalisieren",
+					"name": [ "Initialise",
+						{ } ],
 					"bitSize": "31",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "52",
-					"name": "Füllung",
+					"name": [ "Filling",
+						{ } ],
 					"bitSize": "31",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "54",
-					"name": "Stabilisieren",
+					"name": [ "Stabilise",
+						{ } ],
 					"bitSize": "31",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "60",
-					"name": "Pumpenverzögerung",
+					"name": [ "Pump Delay",
+						{ } ],
 					"bitSize": "7",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "61",
-					"name": "Überwärmeabfuhr",
+					"name": [ "Heat Dump",
+						{ } ],
 					"bitSize": "1",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "62",
-					"name": "Nachlauf",
+					"name": [ "Overrun",
+						{ } ],
 					"bitSize": "7",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "63",
-					"name": "Thermische Desinfektion",
+					"name": [ "Thermal Disinfection",
+						{ } ],
 					"bitSize": "7",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "64",
-					"name": "Speicherkühlung",
+					"name": [ "Store Cooling",
+						{ } ],
 					"bitSize": "1",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "65",
-					"name": "Systemkühlung",
+					"name": [ "System Cooling",
+						{ } ],
 					"bitSize": "1",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "66",
-					"name": "Spreizung",
+					"name": [ "Spreading",
+						{ } ],
 					"bitSize": "7",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "67",
-					"name": "Frostschutz",
+					"name": [ "Antifreeze",
+						{ } ],
 					"bitSize": "7",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "68",
-					"name": "Kollektorkühlung",
+					"name": [ "Collector Cooling",
+						{ } ],
 					"bitSize": "1",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "69",
-					"name": "Speichermaximaltemperatur",
+					"name": [ "Maximum store temperature",
+						{ } ],
 					"bitSize": "1",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "70",
-					"name": "Neustarts",
+					"name": [ "Restarts",
+						{ } ],
 					"bitSize": "1",
 					"factor": "1.0",
 					"unit": ""
 				},
 				{
 					"offset": "72",
-					"name": "Fehlermaske",
+					"name": [ "Error Mask",
+						{ } ],
 					"bitSize": "31",
 					"factor": "1.0",
 					"unit": ""

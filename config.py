@@ -1,8 +1,8 @@
 import os
 
 # configure kind of connection "lan", "serial" or "stdin"
-connection = "lan"
-#connection = "serial"
+#connection = "lan"
+connection = "serial"
 #connection = "stdin"
 
 # only used for "lan"
@@ -10,11 +10,13 @@ address = ("192.168.1.253", 7053)
 vbus_pass = "vbus"
 
 # only used for "serial"
-port = "/dev/ttyAMA0"
+#port = "/dev/ttyAMA0"
+port = "/dev/ttyACM0"
 baudrate = 9600
 
-spec_file = os.path.dirname(__file__) + '/spec/DeltaSolBS2009.json'
+#spec_file = os.path.dirname(__file__) + '/spec/DeltaSolBS2009.json'
+spec_file = 'spec/DeltaSolSLL.json'
 # expected amount of different source packets (see spec_file)
 expected_packets = 1
 
-debug = False
+debug = False 

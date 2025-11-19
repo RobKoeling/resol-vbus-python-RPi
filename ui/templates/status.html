@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="panel">
+    {% if message %}
+      <h2>{{ message }}</h2>
+    {% else %}
+      <h2>Current Status</h2>
+      <div class="meta">
+        <div><strong>Device:</strong> {{ device_name or 'Unknown' }}</div>
+        <div><strong>Time:</strong> {{ now.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+      </div>
+
+      <div class="status-grid">
+        {% for f in status_fields %}
+          <div class="status-row">
+            <div class="status-label">{{ f.label }}</div>
+            <div class="status-value">{{ f.value }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

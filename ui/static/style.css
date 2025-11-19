@@ -1,0 +1,25 @@
+:root{
+  --sidebar-width: 16.6667%; /* ~1/6th */
+  --bg: #f7f9fb;
+  --accent: #1f6feb;
+  --muted: #666;
+}
+html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+.container{display:flex;height:100vh;background:var(--bg)}
+.sidebar{width:var(--sidebar-width);background:#0f1724;color:#fff;padding:20px;box-sizing:border-box}
+.brand{font-weight:700;font-size:1.25rem;margin-bottom:1rem}
+.nav{display:flex;flex-direction:column;gap:8px}
+.nav-item{display:block;padding:10px;border-radius:6px;color:#dbeafe;text-decoration:none}
+.nav-item:hover{background:#0b1220}
+.main{flex:1;padding:24px;box-sizing:border-box}
+.panel{background:#fff;border-radius:8px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.meta{display:flex;gap:16px;color:var(--muted);margin-bottom:12px}
+.status-grid{display:flex;flex-direction:column;gap:10px}
+.status-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border:1px solid #f0f3f7;border-radius:6px}
+.status-label{color:#333}
+.status-value{font-weight:600}
+
+@media (max-width:800px){
+  .sidebar{display:none}
+  .container{height:auto}
+}

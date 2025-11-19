@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>RESOL Status</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <aside class="sidebar">
+        <div class="brand">RESOL</div>
+        <nav class="nav">
+          <a class="nav-item" href="{{ url_for('index') }}">Current Status</a>
+          <a class="nav-item" href="{{ url_for('under_construction') }}">Last Hour</a>
+          <a class="nav-item" href="{{ url_for('under_construction') }}">Day</a>
+          <a class="nav-item" href="{{ url_for('under_construction') }}">Week</a>
+        </nav>
+      </aside>
+      <main class="main">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </body>
+</html>

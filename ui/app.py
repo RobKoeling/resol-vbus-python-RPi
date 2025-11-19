@@ -16,19 +16,79 @@ app = Flask(__name__, static_url_path='/static', static_folder=str(Path(__file__
 
 
 def get_latest_snapshot(db_path=None):
-    manager = db.DBManager(path=db_path) if db_path else db.DBManager()
-    manager.connect()
-    cur = manager.conn.cursor()
-    cur.execute('SELECT ts, data FROM snapshots ORDER BY ts DESC, id DESC LIMIT 1')
-    row = cur.fetchone()
-    if not row:
-        return None
-    ts, data_text = row[0], row[1]
+    # Try to read from the SQLite snapshots table first. If the DB is not
+    # present or empty (for example when running on the laptop), fall back
+    # to any parsed capture JSON files saved under `captures/`.
     try:
-        data = json.loads(data_text)
+        manager = db.DBManager(path=db_path) if db_path else db.DBManager()
+        manager.connect()
+        cur = manager.conn.cursor()
+        cur.execute('SELECT ts, data FROM snapshots ORDER BY ts DESC, id DESC LIMIT 1')
+        row = cur.fetchone()
+        if row:
+            ts, data_text = row[0], row[1]
+            try:
+                data = json.loads(data_text)
+            except Exception:
+                data = {}
+            return {'ts': ts, 'data': data}
     except Exception:
-        data = {}
-    return {'ts': ts, 'data': data}
+        # DB not available or error reading it; fall through to captures
+        pass
+
+    # Fallback: look for latest parsed capture JSON in `captures/`
+    cap = get_latest_from_captures()
+    return cap
+
+
+def get_latest_from_captures(outdir='captures'):
+    """Return the latest parsed capture as {'ts': ..., 'data': {...}} or None.
+
+    The capture process writes <outdir>/manifest.json listing captures and
+    also writes a `.json` file next to each `.bin` capture containing the
+    parsed snapshot. This helper prefers the manifest but will also scan for
+    the newest JSON file.
+    """
+    import os
+
+    manifest = os.path.join(outdir, 'manifest.json')
+    if os.path.exists(manifest):
+        try:
+            with open(manifest, 'r', encoding='utf-8') as mf:
+                m = json.load(mf)
+            samples = m.get('samples', [])
+            if samples:
+                # manifest samples have keys 'json' and 'timestamp'
+                last = samples[-1]
+                jsonfile = os.path.join(outdir, last.get('json', ''))
+                if os.path.exists(jsonfile):
+                    with open(jsonfile, 'r', encoding='utf-8') as jf:
+                        data = json.load(jf)
+                    return {'ts': last.get('timestamp'), 'data': data}
+        except Exception:
+            pass
+
+    # No manifest or failed to read: scan directory for newest .json file
+    try:
+        files = []
+        for fn in os.listdir(outdir) if os.path.isdir(outdir) else []:
+            if fn.lower().endswith('.json'):
+                files.append(os.path.join(outdir, fn))
+        if not files:
+            return None
+        files.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+        newest = files[0]
+        with open(newest, 'r', encoding='utf-8') as jf:
+            data = json.load(jf)
+        # try to derive timestamp from filename if available
+        ts = None
+        try:
+            ts = os.path.basename(newest).split('.json')[0].replace('capture-', '')
+        except Exception:
+            ts = None
+        return {'ts': ts, 'data': data}
+    except Exception:
+        return None
 
 
 @app.route('/')

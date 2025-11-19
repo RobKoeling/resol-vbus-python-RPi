@@ -11,6 +11,13 @@ import socket
 import sys
 import importlib.util
 from pathlib import Path
+import sys
+
+# Ensure the repository root is on sys.path so local modules (like `db`)
+# can be imported when running this script directly from the repo root.
+repo_root = str(Path(__file__).parent.parent.resolve())
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
 
 # Load the `app` object from the sibling `app.py` module without requiring
 # the `ui` directory to be a Python package. This allows running

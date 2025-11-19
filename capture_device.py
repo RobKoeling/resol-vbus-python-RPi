@@ -121,7 +121,18 @@ def capture_session(duration=DEFAULT_DURATION, interval=DEFAULT_INTERVAL, outdir
             with open(filename, 'wb') as f:
                 f.write(raw)
 
-            samples.append({'file': os.path.basename(filename), 'timestamp': ts, 'size': len(raw)})
+            # parse the raw capture and write JSON result for offline use
+            try:
+                import parser
+                parsed = parser.parse_raw_bytes(raw)
+            except Exception:
+                parsed = {}
+
+            json_filename = filename.rsplit('.', 1)[0] + '.json'
+            with open(json_filename, 'w', encoding='utf-8') as jf:
+                json.dump(parsed, jf, indent=2)
+
+            samples.append({'file': os.path.basename(filename), 'json': os.path.basename(json_filename), 'timestamp': ts, 'size': len(raw)})
 
             # wait until next interval
             if i < n - 1:

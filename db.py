@@ -26,6 +26,7 @@ class DBManager:
 
     def _create_tables(self):
         cur = self.conn.cursor()
+        # legacy normalized table (kept for compatibility)
         cur.execute(
             '''
             CREATE TABLE IF NOT EXISTS measurements (
@@ -40,13 +41,40 @@ class DBManager:
         )
         cur.execute('CREATE INDEX IF NOT EXISTS idx_measurements_ts ON measurements(ts)')
         cur.execute('CREATE INDEX IF NOT EXISTS idx_measurements_device_field ON measurements(device, field)')
+
+        # preferred snapshots table: stores the full parsed snapshot as JSON
+        cur.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS snapshots (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ts TEXT NOT NULL,
+                data TEXT NOT NULL -- JSON text of { device: { field: "value unit", ... }, ... }
+            )
+            '''
+        )
+        cur.execute('CREATE INDEX IF NOT EXISTS idx_snapshots_ts ON snapshots(ts)')
         self.conn.commit()
 
     def insert_snapshot(self, ts: str, snapshot: Dict[str, Dict[str, str]]):
-        """Insert a snapshot into the measurements table.
+        """Insert a snapshot as structured JSON into the `snapshots` table.
 
-        snapshot: { device_name: { field_name: value_with_unit_str, ... }, ... }
-        The value string is parsed to numeric value and unit when possible.
+        This is the preferred storage method: the entire parsed snapshot is saved
+        as JSON in one row (timestamp + data). The legacy `measurements` table is
+        kept for backwards compatibility but not written by default.
+        """
+        if self.conn is None:
+            self.connect()
+
+        cur = self.conn.cursor()
+        import json as _json
+        json_text = _json.dumps(snapshot, ensure_ascii=False)
+        cur.execute('INSERT INTO snapshots (ts, data) VALUES (?, ?)', (ts, json_text))
+        self.conn.commit()
+
+    def insert_snapshot_rows(self, ts: str, snapshot: Dict[str, Dict[str, str]]):
+        """(Compatibility helper) Insert snapshot as normalized rows into `measurements`.
+
+        Use this only if you need the old row format.
         """
         if self.conn is None:
             self.connect()
@@ -59,8 +87,9 @@ class DBManager:
                 value, unit = self._parse_value_and_unit(raw_value)
                 rows.append((ts, device, field_name, value, unit))
 
-        cur.executemany('INSERT INTO measurements (ts, device, field, value, unit) VALUES (?,?,?,?,?)', rows)
-        self.conn.commit()
+        if rows:
+            cur.executemany('INSERT INTO measurements (ts, device, field, value, unit) VALUES (?,?,?,?,?)', rows)
+            self.conn.commit()
 
     @staticmethod
     def _parse_value_and_unit(raw: str):

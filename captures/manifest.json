@@ -1,0 +1,65 @@
+{
+  "created": "2025-11-19T16:00:37.653709Z",
+  "samples": [
+    {
+      "file": "capture-2025-11-19T15-55-41Z.bin",
+      "json": "capture-2025-11-19T15-55-41Z.json",
+      "timestamp": "2025-11-19T15:55:41Z",
+      "size": 432
+    },
+    {
+      "file": "capture-2025-11-19T15-56-14Z.bin",
+      "json": "capture-2025-11-19T15-56-14Z.json",
+      "timestamp": "2025-11-19T15:56:14Z",
+      "size": 4720
+    },
+    {
+      "file": "capture-2025-11-19T15-56-46Z.bin",
+      "json": "capture-2025-11-19T15-56-46Z.json",
+      "timestamp": "2025-11-19T15:56:46Z",
+      "size": 4669
+    },
+    {
+      "file": "capture-2025-11-19T15-57-19Z.bin",
+      "json": "capture-2025-11-19T15-57-19Z.json",
+      "timestamp": "2025-11-19T15:57:19Z",
+      "size": 4722
+    },
+    {
+      "file": "capture-2025-11-19T15-57-52Z.bin",
+      "json": "capture-2025-11-19T15-57-52Z.json",
+      "timestamp": "2025-11-19T15:57:52Z",
+      "size": 4722
+    },
+    {
+      "file": "capture-2025-11-19T15-58-24Z.bin",
+      "json": "capture-2025-11-19T15-58-24Z.json",
+      "timestamp": "2025-11-19T15:58:24Z",
+      "size": 4710
+    },
+    {
+      "file": "capture-2025-11-19T15-58-57Z.bin",
+      "json": "capture-2025-11-19T15-58-57Z.json",
+      "timestamp": "2025-11-19T15:58:57Z",
+      "size": 4719
+    },
+    {
+      "file": "capture-2025-11-19T15-59-29Z.bin",
+      "json": "capture-2025-11-19T15-59-29Z.json",
+      "timestamp": "2025-11-19T15:59:29Z",
+      "size": 4669
+    },
+    {
+      "file": "capture-2025-11-19T16-00-02Z.bin",
+      "json": "capture-2025-11-19T16-00-02Z.json",
+      "timestamp": "2025-11-19T16:00:02Z",
+      "size": 4702
+    },
+    {
+      "file": "capture-2025-11-19T16-00-34Z.bin",
+      "json": "capture-2025-11-19T16-00-34Z.json",
+      "timestamp": "2025-11-19T16:00:34Z",
+      "size": 4689
+    }
+  ]
+}

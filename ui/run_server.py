@@ -9,7 +9,16 @@ the Flask development server listening on 0.0.0.0.
 
 import socket
 import sys
-from ui import app
+import importlib.util
+from pathlib import Path
+
+# Load the `app` object from the sibling `app.py` module without requiring
+# the `ui` directory to be a Python package. This allows running
+# `python3 ui/run_server.py` directly from the repository root.
+spec = importlib.util.spec_from_file_location('ui_app', str(Path(__file__).parent / 'app.py'))
+ui_app = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(ui_app)
+app = ui_app.app
 
 
 def get_primary_ip():

@@ -1,0 +1,335 @@
+{
+	"vbusSpecification": {
+		"device": [
+			{
+			"address": "0x2271",
+			"mask": "0xFFFF",
+			"name": "DeltaSol SLL [Regler]",
+			"isMaster": "true"
+		}
+		],
+		"packet": [
+			{
+			"destination": "0x0010",
+			"source": "0x2271",
+			"command": "0x0100",
+			"field": [
+				{
+					"offset": "0",
+					"name": [ "Systemdatum",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "System Date"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"format": "r",
+					"unit": ""
+				},
+				{
+					"offset": "4",
+					"name": [ "Temperatur Sensor 1",
+						{
+						 "-lang": "en",
+						 "#text": "Temp. Sensor 1"
+						}
+						],
+					"bitSize": "15",
+					"factor": "0.1",
+					"unit": "°C"
+				},
+				{
+					"offset": "6",
+					"name": [ "Temperatur Sensor 2",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Temp. Sensor 2"
+                                                }
+                                                ],
+					"bitSize": "15",
+					"factor": "0.1",
+					"unit": "°C"
+				},
+				{
+					"offset": "8",
+					"name": [ "Temperatur Sensor 3",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Temp. Sensor 3"
+                                                }
+                                                ],
+					"bitSize": "15",
+					"factor": "0.1",
+					"unit": "°C"
+				},
+				{
+					"offset": "10",
+					"name": [ "Temperatur Sensor 4",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Temp. Sensor 1"
+                                                }
+                                                ],
+					"bitSize": "15",
+					"factor": "0.1",
+					"unit": "°C"
+				},
+				{
+					"offset": "12",
+					"name": [ "TAGE",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Days"
+                                                }
+                                                ],
+					"bitSize": "15",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "16",
+					"name": [ "Volumenstrom V40",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Flow V40"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": "l/h"
+				},
+				{
+					"offset": "20",
+					"name": [ "Drehzahl Relais 1",
+						{
+                                                 "-lang": "en",
+                                                 "#text": Pump 1"
+                                                }
+                                                ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "21",
+					"name": [ "Drehzahl Relais 2",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Pump 2"
+                                                }
+                                                ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "22",
+					"name": [ "Drehzahl Relais 4",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Pump 4"
+                                                }
+                                                ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "24",
+					"name": [ "Wärmemenge",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Heat Quantity"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": "Wh"
+				},
+				{
+					"offset": "28",
+					"name": [ "SW-Version",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Software Version"
+                                                }
+                                                ],
+					"bitSize": "15",
+					"factor": "0.01",
+					"unit": ""
+				},
+				{
+					"offset": "32",
+					"name": [ "Betriebsstunden Relais 1",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Hours Pump 1"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": "h"
+				},
+				{
+					"offset": "36",
+					"name": [ "Betriebsstunden Relais 2",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Hours Pump 2"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": "h"
+				},
+				{
+					"offset": "40",
+					"name": [ "Betriebsstunden Relais 3",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Hours Pump 3"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": "h"
+				},
+				{
+					"offset": "44",
+					"name": "Urlaubsfunktion",
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "45",
+					"name": "Blockierschutz 1",
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "46",
+					"name": "Blockierschutz 2",
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "47",
+					"name": "Blockierschutz 3",
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "48",
+					"name": "Initalisieren",
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "52",
+					"name": "Füllung",
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "54",
+					"name": "Stabilisieren",
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "60",
+					"name": "Pumpenverzögerung",
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "61",
+					"name": "Überwärmeabfuhr",
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "62",
+					"name": "Nachlauf",
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "63",
+					"name": "Thermische Desinfektion",
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "64",
+					"name": "Speicherkühlung",
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "65",
+					"name": "Systemkühlung",
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "66",
+					"name": "Spreizung",
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "67",
+					"name": "Frostschutz",
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "68",
+					"name": "Kollektorkühlung",
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "69",
+					"name": "Speichermaximaltemperatur",
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "70",
+					"name": "Neustarts",
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "72",
+					"name": "Fehlermaske",
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": ""
+				}
+			]
+		}
+	]
+	}
+}

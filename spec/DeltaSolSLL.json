@@ -1,0 +1,354 @@
+{
+	"vbusSpecification": {
+		"device": [
+			{
+			"address": "0x2271",
+			"mask": "0xFFFF",
+			"name": "DeltaSol SLL [Regler]",
+			"isMaster": "true"
+		}
+		],
+		"packet": [
+			{
+			"destination": "0x0010",
+			"source": "0x2271",
+			"command": "0x0100",
+			"field": [
+				{
+					"offset": "0",
+					"name": [ "System Date",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "System Date"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"format": "r",
+					"unit": ""
+				},
+				{
+					"offset": "4",
+					"name": [ "Temp. Sensor 1",
+						{
+						 "-lang": "en",
+						 "#text": "Temp. Sensor 1"
+						}
+						],
+					"bitSize": "15",
+					"factor": "0.1",
+					"unit": "°C"
+				},
+				{
+					"offset": "6",
+					"name": [ "Temp. Sensor 2",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Temp. Sensor 2"
+                                                }
+                                                ],
+					"bitSize": "15",
+					"factor": "0.1",
+					"unit": "°C"
+				},
+				{
+					"offset": "8",
+					"name": [ "Temp. Sensor 3",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Temp. Sensor 3"
+                                                }
+                                                ],
+					"bitSize": "15",
+					"factor": "0.1",
+					"unit": "°C"
+				},
+				{
+					"offset": "10",
+					"name": [ "Temp. Sensor 4",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Temp. Sensor 1"
+                                                }
+                                                ],
+					"bitSize": "15",
+					"factor": "0.1",
+					"unit": "°C"
+				},
+				{
+					"offset": "12",
+					"name": [ "Days",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Days"
+                                                }
+                                                ],
+					"bitSize": "15",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "16",
+					"name": [ "Flow rate V40",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Flow V40"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": "l/h"
+				},
+				{
+					"offset": "20",
+					"name": [ "Pump Speed Relay 1",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Pump 1"
+                                                }
+                                                ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "21",
+					"name": [ "Pump Speed Relay 2",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Pump 2"
+                                                }
+                                                ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "22",
+					"name": [ "Pump Speed Relay 3",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Pump 3"
+                                                }
+                                                ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "24",
+					"name": [ "Heat quantity",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Heat Quantity"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": "Wh"
+				},
+				{
+					"offset": "28",
+					"name": [ "SW-Version",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Software Version"
+                                                }
+                                                ],
+					"bitSize": "15",
+					"factor": "0.01",
+					"unit": ""
+				},
+				{
+					"offset": "32",
+					"name": [ "Operating Hours Relay 1",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Operating Hours Relay 1"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": "h"
+				},
+				{
+					"offset": "36",
+					"name": [ "Operating Hours Relay 2",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Operating Hours Relay 2"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": "h"
+				},
+				{
+					"offset": "40",
+					"name": [ "Operating Hours Relay 3",
+						{
+                                                 "-lang": "en",
+                                                 "#text": "Operating Hours Relay 3"
+                                                }
+                                                ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": "h"
+				},
+				{
+					"offset": "44",
+					"name": [ "Holiday Function",
+						{ } ],
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "45",
+					"name": [ "Blocking protection 1",
+						{ } ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "46",
+					"name": [ "Blocking protection 2",
+						{ } ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "47",
+					"name": [ "Blocking protection 3",
+						{ } ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": "%"
+				},
+				{
+					"offset": "48",
+					"name": [ "Initialise",
+						{ } ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "52",
+					"name": [ "Filling",
+						{ } ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "54",
+					"name": [ "Stabilise",
+						{ } ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "60",
+					"name": [ "Pump Delay",
+						{ } ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "61",
+					"name": [ "Heat Dump",
+						{ } ],
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "62",
+					"name": [ "Overrun",
+						{ } ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "63",
+					"name": [ "Thermal Disinfection",
+						{ } ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "64",
+					"name": [ "Store Cooling",
+						{ } ],
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "65",
+					"name": [ "System Cooling",
+						{ } ],
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "66",
+					"name": [ "Spreading",
+						{ } ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "67",
+					"name": [ "Antifreeze",
+						{ } ],
+					"bitSize": "7",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "68",
+					"name": [ "Collector Cooling",
+						{ } ],
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "69",
+					"name": [ "Maximum store temperature",
+						{ } ],
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "70",
+					"name": [ "Restarts",
+						{ } ],
+					"bitSize": "1",
+					"factor": "1.0",
+					"unit": ""
+				},
+				{
+					"offset": "72",
+					"name": [ "Error Mask",
+						{ } ],
+					"bitSize": "31",
+					"factor": "1.0",
+					"unit": ""
+				}
+			]
+			}
+	]
+	}
+}

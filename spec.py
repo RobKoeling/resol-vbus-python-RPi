@@ -1,8 +1,3 @@
-#!/usr/bin/env python2
-
-__author__ = 'Tim'
-import json
-import sys
 #!/usr/bin/env python3
 
 __author__ = 'Tim'
@@ -28,3 +23,5 @@ if config.debug:
         print(packet)
         for field in packet.get('field', []):
             print("  " + str(field))
+
+#json_data.close()

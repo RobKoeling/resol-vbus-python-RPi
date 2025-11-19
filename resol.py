@@ -1,12 +1,3 @@
-#!/usr/bin/env python2
-
-#
-# Talk with Resol VBUS over LAN or serial UART
-#
-
-import socket
-import sys
-import json
 #!/usr/bin/env python3
 
 # Talk with Resol VBUS over LAN or serial UART (Python 3 port)

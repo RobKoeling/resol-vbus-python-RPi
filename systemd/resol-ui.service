@@ -1,0 +1,19 @@
+[Unit]
+Description=RESOL VBUS Flask UI
+After=network.target
+
+[Service]
+Type=simple
+# Update 'User' to the account that should own the process (e.g. 'pi' or 'rob')
+User=pi
+# Update WorkingDirectory to the path where this repository is located on the Pi
+WorkingDirectory=/home/pi/resol-vbus-python
+# Make sure the environment PATH includes any user-local pip installs
+Environment=PATH=/home/pi/.local/bin:/usr/bin:/bin
+# ExecStart should point to the run_server helper in the repo; update the path if necessary
+ExecStart=/usr/bin/env python3 /home/pi/resol-vbus-python/ui/run_server.py
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

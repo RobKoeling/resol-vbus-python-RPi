@@ -22,28 +22,72 @@ or just write JSON Data to file via:
 
 ```shell
 !#/bin/sh
-resol.py > solar.json
-```  
+resol-vbus-python
+=================
 
-Settings
+Python script to read RESOL VBUS data over LAN, serial, or stdin and output parsed fields as JSON.
+
+Overview
 --------
 
-Some config is needed in order to run this script:
+This repository contains a small parser that connects to a RESOL VBUS device (via LAN or serial), reads VBUS frames, decodes the septet-encoded payloads, maps packets to a RESOL spec file, and prints a JSON dictionary of parsed field values keyed by device name.
 
-1. IP and port of DataLogger/VBUS_to_LAN Adapter in config.py
-2. Number of unique messages to wait for in config.py
-    we need this, cause VBUS sends data in an not predictable way. To receive a full output, it is neccessary to know, how     many different messages are expected. Don't choose a too high number, this will cause the script to run forever. Just      find out by try'n'error
+Quickstart (Python 3)
+---------------------
 
-3. The spec File to use in config.py  
-    Spec files are the dictionary to parse VBUS Messages. They are provided in XML by RESOL as part of the RSC (Resol Service Center) download. Just download, install (on linux use wine, it will work) and get the required file for your installation from: {Install_dir}/eclipse/plugins/de.resol.servicecenter.vbus.resol_2.0.0/
+1. Install dependencies (recommended inside a virtual environment):
 
-    Provided specs are in XML format. to convert you can use http://www.utilities-online.info/xmltojson
-    Also, if the "mask" entry (https://github.com/rellit/resol-vbus-python/blob/master/spec/DeltaSolBXPlus.json#L6) should be missing, you need to set that for your system.
-    The correct mask setting can be found here: https://danielwippermann.github.io/resol-vbus/vbus-packets.html
-    
-    
-Debug
------
+```bash
+python3 -m pip install -r requirements.txt
+```
 
-If anything wents wrong, xou can enable debug flag in config.py. This will print some basic information while executing the script, but will destroy the JSON output. 
->>>>>>> 39c6e6503515b5917fd1c89aaf42bfd6651f3848
+2. Configure `config.py`:
+
+- Set `connection` to one of: `"lan"`, `"serial"`, or `"stdin"`.
+- For LAN: set `address = ("<IP>", <port>)` and `vbus_pass`.
+- For serial: set `port` and `baudrate`.
+- Set `spec_file` to a JSON spec (in `spec/` or a converted RESOL RSC file).
+- Adjust `expected_packets` (how many unique source packets to wait for) and `debug` as needed.
+
+3. Run the parser:
+
+```bash
+python3 resol.py
+```
+
+If you want to replay a raw capture file via stdin:
+
+```bash
+python3 resol.py < capture.bin
+```
+
+Example output
+--------------
+
+The script prints a JSON object (one-shot) with device names as keys and field name → value strings as values. Example:
+
+```json
+{
+    "DeltaSol SLL [Regler]": {
+        "Temp. Sensor 1": "23.4°C",
+        "Temp. Sensor 2": "19.8°C",
+        "Pump 1": "75%"
+    }
+}
+```
+
+Spec files
+----------
+
+Spec files are JSON-converted versions of the RESOL RSC XML specification files (included in `spec/`). You can convert the original XML using an XML→JSON converter, or obtain the JSON specs from a compatible source. Each spec contains `device` and `packet` definitions used by the parser.
+
+Debugging
+---------
+
+- Set `debug = True` in `config.py` to get verbose message parsing output. Note: enabling debug will interleave textual debug output with any JSON printed by the script.
+
+Notes & Next Steps
+------------------
+
+- This repository was ported to Python 3 (see branch `py3-port`). Values are currently emitted as strings with units appended. If you prefer structured numeric output (separate `value` and `unit` fields), I can update the output format.
+- Consider adding tests that replay captures from `Testaufzeichnung/` and a CI workflow to validate the parser on Python 3.

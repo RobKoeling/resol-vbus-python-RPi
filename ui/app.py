@@ -12,7 +12,11 @@ from datetime import datetime
 
 import db
 
-app = Flask(__name__, static_url_path='/static', static_folder=str(Path(__file__).parent / 'static'))
+static_folder_path = str((Path(__file__).parent / 'static').resolve())
+template_folder_path = str((Path(__file__).parent / 'templates').resolve())
+
+app = Flask(__name__, static_url_path='/static', static_folder=static_folder_path,
+            template_folder=template_folder_path)
 
 
 def get_latest_snapshot(db_path=None):

@@ -1,0 +1,14 @@
+[Unit]
+Description=Resol VBUS Collector
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=%h/PycharmProjects/SolarController/resol-vbus-python
+ExecStart=/usr/bin/python3 %h/PycharmProjects/SolarController/resol-vbus-python/collector.py --db %h/PycharmProjects/SolarController/resol-vbus-python/data/resol_data.db --interval 5
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

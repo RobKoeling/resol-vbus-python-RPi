@@ -11,6 +11,17 @@ import json
 from datetime import datetime
 
 import db
+import importlib.util
+
+# Try to load the background live reader from `ui/live_reader.py` so it
+# begins polling when the app is imported. We use importlib to avoid
+# requiring `ui` to be a package.
+try:
+    spec_lr = importlib.util.spec_from_file_location('ui_live_reader', str(Path(__file__).parent / 'live_reader.py'))
+    ui_live_reader = importlib.util.module_from_spec(spec_lr)
+    spec_lr.loader.exec_module(ui_live_reader)
+except Exception:
+    ui_live_reader = None
 
 static_folder_path = str((Path(__file__).parent / 'static').resolve())
 template_folder_path = str((Path(__file__).parent / 'templates').resolve())
@@ -40,14 +51,14 @@ def get_latest_snapshot(db_path=None):
         # DB not available or error reading it; fall through to captures
         pass
 
-    # Before falling back to captures, if the configured connection is
-    # 'serial' try to read a small live snapshot from the device.
+    # Before falling back to captures, if a background live reader is
+    # available use its cached snapshot. This avoids blocking the request
+    # while performing a live serial read.
     try:
-        import config as _config
-        if getattr(_config, 'connection', None) == 'serial':
-            live = get_live_snapshot_from_serial()
-            if live:
-                return live
+        if ui_live_reader is not None:
+            cached = ui_live_reader.get_cached_snapshot()
+            if cached:
+                return cached
     except Exception:
         # ignore and continue to captures fallback
         pass

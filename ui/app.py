@@ -40,9 +40,55 @@ def get_latest_snapshot(db_path=None):
         # DB not available or error reading it; fall through to captures
         pass
 
+    # Before falling back to captures, if the configured connection is
+    # 'serial' try to read a small live snapshot from the device.
+    try:
+        import config as _config
+        if getattr(_config, 'connection', None) == 'serial':
+            live = get_live_snapshot_from_serial()
+            if live:
+                return live
+    except Exception:
+        # ignore and continue to captures fallback
+        pass
+
     # Fallback: look for latest parsed capture JSON in `captures/`
     cap = get_latest_from_captures()
     return cap
+
+
+def get_live_snapshot_from_serial(read_seconds=2.0):
+    """Attempt to open the configured serial port, read a short sample
+    and parse it. Returns {'ts': ..., 'data': {...}} or None on failure.
+    """
+    try:
+        # reuse helpers from capture_device and parser to avoid duplicating
+        # parsing logic.
+        from capture_device import connect_serial, read_for
+        import parser as _parser
+        from datetime import datetime
+
+        sock = connect_serial()
+        try:
+            raw = read_for(sock, seconds=read_seconds)
+        finally:
+            try:
+                sock.close()
+            except Exception:
+                pass
+
+        if not raw:
+            return None
+
+        try:
+            parsed = _parser.parse_raw_bytes(raw)
+        except Exception:
+            parsed = None
+
+        if parsed:
+            return {'ts': datetime.utcnow().isoformat() + 'Z', 'data': parsed}
+    except Exception:
+        return None
 
 
 def get_latest_from_captures(outdir='captures'):

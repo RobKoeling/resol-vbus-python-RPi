@@ -5,7 +5,16 @@
     {% if message %}
       <h2>{{ message }}</h2>
     {% else %}
-      <h2>Current Status</h2>
+      <div class="panel-header">
+        <h2>Current Status</h2>
+        <div class="data-badge">
+          <span class="source">{{ data_source or 'unknown' }}</span>
+          {% if data_age %}
+            <span class="age">{{ data_age }}</span>
+          {% endif %}
+        </div>
+      </div>
+
       <div class="meta">
         <div><strong>Device:</strong> {{ device_name or 'Unknown' }}</div>
         <div><strong>Time:</strong> {{ now.strftime('%Y-%m-%d %H:%M:%S') }}</div>

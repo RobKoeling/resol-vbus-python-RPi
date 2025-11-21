@@ -46,7 +46,7 @@ def get_latest_snapshot(db_path=None):
                 data = json.loads(data_text)
             except Exception:
                 data = {}
-            return {'ts': ts, 'data': data}
+            return {'ts': ts, 'data': data, 'source': 'db'}
     except Exception:
         # DB not available or error reading it; fall through to captures
         pass
@@ -97,7 +97,7 @@ def get_live_snapshot_from_serial(read_seconds=2.0):
             parsed = None
 
         if parsed:
-            return {'ts': datetime.utcnow().isoformat() + 'Z', 'data': parsed}
+            return {'ts': datetime.utcnow().isoformat() + 'Z', 'data': parsed, 'source': 'live'}
     except Exception:
         return None
 
@@ -125,7 +125,7 @@ def get_latest_from_captures(outdir='captures'):
                 if os.path.exists(jsonfile):
                     with open(jsonfile, 'r', encoding='utf-8') as jf:
                         data = json.load(jf)
-                    return {'ts': last.get('timestamp'), 'data': data}
+                    return {'ts': last.get('timestamp'), 'data': data, 'source': 'capture'}
         except Exception:
             pass
 
@@ -147,7 +147,7 @@ def get_latest_from_captures(outdir='captures'):
             ts = os.path.basename(newest).split('.json')[0].replace('capture-', '')
         except Exception:
             ts = None
-        return {'ts': ts, 'data': data}
+        return {'ts': ts, 'data': data, 'source': 'capture'}
     except Exception:
         return None
 
@@ -198,7 +198,69 @@ def index():
         is_temp = fname.startswith('Temp')
         status_fields.append({'label': label, 'value': render_field(raw, is_temp)})
 
-    return render_template('status.html', device_name=device_name, now=datetime.now(), status_fields=status_fields)
+    # determine data source and age
+    source = None
+    age = None
+    if snap and isinstance(snap, dict):
+        source = snap.get('source')
+        ts = snap.get('ts')
+        age = _format_age(ts)
+
+    return render_template('status.html', device_name=device_name, now=datetime.now(), status_fields=status_fields, data_source=source, data_age=age)
+
+
+def _format_age(ts_str):
+    """Return a human readable age string like '5s ago', '3m ago', '2h 5m ago'.
+
+    Accepts ISO timestamps (with trailing 'Z') and also the capture filename
+    style timestamps (`2025-11-19T12-00-00Z`). Returns None on parse failure.
+    """
+    if not ts_str:
+        return None
+    from datetime import datetime
+    import re
+
+    s = str(ts_str)
+    # normalize common variants: trailing Z -> +00:00 for fromisoformat
+    try:
+        if s.endswith('Z'):
+            dt = datetime.fromisoformat(s.replace('Z', '+00:00'))
+        else:
+            # try to fix time separators if filename-style (T12-00-00)
+            m = re.match(r"(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z)", s)
+            if m:
+                fixed = re.sub(r"T(\d{2})-(\d{2})-(\d{2})Z", r"T\1:\2:\3+00:00", s)
+                dt = datetime.fromisoformat(fixed)
+            else:
+                dt = datetime.fromisoformat(s)
+    except Exception:
+        try:
+            # last resort: strip non-digits and give up
+            return None
+        except Exception:
+            return None
+
+    now = datetime.utcnow().replace(tzinfo=dt.tzinfo) if dt.tzinfo else datetime.utcnow()
+    # ensure both naive or both aware: compare in UTC naive
+    try:
+        delta = now - dt.replace(tzinfo=None)
+    except Exception:
+        delta = now - dt
+
+    secs = int(delta.total_seconds())
+    if secs < 0:
+        return 'just now'
+    if secs < 60:
+        return f"{secs}s ago"
+    mins = secs // 60
+    if mins < 60:
+        return f"{mins}m ago"
+    hours = mins // 60
+    if hours < 24:
+        rem = mins % 60
+        return f"{hours}h {rem}m ago" if rem else f"{hours}h ago"
+    days = hours // 24
+    return f"{days}d ago"
 
 
 @app.route('/hour')

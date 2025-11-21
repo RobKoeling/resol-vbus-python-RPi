@@ -1,0 +1,16 @@
+[Unit]
+Description=RESOL VBUS Flask UI
+After=network.target
+
+[Service]
+Type=simple
+# The installation script will replace USER_PLACEHOLDER and WORKDIR_PLACEHOLDER
+User=USER_PLACEHOLDER
+WorkingDirectory=WORKDIR_PLACEHOLDER
+Environment=PATH=HOME/.local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env python3 WORKDIR_PLACEHOLDER/ui/run_server.py
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

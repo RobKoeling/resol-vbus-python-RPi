@@ -53,6 +53,20 @@ class DBManager:
             '''
         )
         cur.execute('CREATE INDEX IF NOT EXISTS idx_snapshots_ts ON snapshots(ts)')
+
+        # tap_readings table: stores manual tap temperature readings for prediction model
+        cur.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS tap_readings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ts TEXT NOT NULL,
+                tap_temp REAL NOT NULL,
+                tank_lower REAL,
+                tank_upper REAL
+            )
+            '''
+        )
+        cur.execute('CREATE INDEX IF NOT EXISTS idx_tap_readings_ts ON tap_readings(ts)')
         self.conn.commit()
 
     def insert_snapshot(self, ts: str, snapshot: Dict[str, Dict[str, str]]):
@@ -90,6 +104,50 @@ class DBManager:
         if rows:
             cur.executemany('INSERT INTO measurements (ts, device, field, value, unit) VALUES (?,?,?,?,?)', rows)
             self.conn.commit()
+
+    def insert_tap_reading(self, ts: str, tap_temp: float, tank_lower: float, tank_upper: float):
+        """Insert a manual tap temperature reading with corresponding tank sensor values."""
+        if self.conn is None:
+            self.connect()
+
+        cur = self.conn.cursor()
+        cur.execute(
+            'INSERT INTO tap_readings (ts, tap_temp, tank_lower, tank_upper) VALUES (?, ?, ?, ?)',
+            (ts, tap_temp, tank_lower, tank_upper)
+        )
+        self.conn.commit()
+
+    def get_tap_readings(self, limit: int = None):
+        """Retrieve tap readings for training the prediction model.
+
+        Returns list of dicts with keys: ts, tap_temp, tank_lower, tank_upper
+        """
+        if self.conn is None:
+            self.connect()
+
+        cur = self.conn.cursor()
+        if limit:
+            cur.execute(
+                'SELECT ts, tap_temp, tank_lower, tank_upper FROM tap_readings ORDER BY ts DESC LIMIT ?',
+                (limit,)
+            )
+        else:
+            cur.execute('SELECT ts, tap_temp, tank_lower, tank_upper FROM tap_readings ORDER BY ts DESC')
+
+        rows = cur.fetchall()
+        return [
+            {'ts': r[0], 'tap_temp': r[1], 'tank_lower': r[2], 'tank_upper': r[3]}
+            for r in rows
+        ]
+
+    def get_tap_readings_count(self):
+        """Return the total number of tap readings stored."""
+        if self.conn is None:
+            self.connect()
+
+        cur = self.conn.cursor()
+        cur.execute('SELECT COUNT(*) FROM tap_readings')
+        return cur.fetchone()[0]
 
     @staticmethod
     def _parse_value_and_unit(raw: str):

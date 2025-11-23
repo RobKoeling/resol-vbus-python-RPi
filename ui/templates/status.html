@@ -27,6 +27,10 @@
             <div class="status-value">{{ f.value }}</div>
           </div>
         {% endfor %}
+        <div class="status-row prediction-row">
+          <div class="status-label">Predicted Tap Temp</div>
+          <div class="status-value" id="predicted-tap-temp">Loading...</div>
+        </div>
       </div>
     {% endif %}
   </div>
@@ -65,4 +69,125 @@
     </div>
   </div>
   {% endif %}
+
+  <div class="panel prediction-panel">
+    <div class="panel-header">
+      <h2>Hot Water Prediction</h2>
+      <div id="model-status-badge" class="model-badge">Loading...</div>
+    </div>
+    <div class="prediction-content">
+      <div class="prediction-display">
+        <div class="prediction-label">Predicted Tap Temperature</div>
+        <div class="prediction-value" id="prediction-display">--</div>
+        <div class="prediction-confidence" id="prediction-confidence"></div>
+      </div>
+      <div class="prediction-form">
+        <label for="tap-temp-input">Record actual tap temperature:</label>
+        <div class="input-group">
+          <input type="number" id="tap-temp-input" placeholder="e.g., 42.5" step="0.1" min="0" max="100">
+          <span class="input-unit">°C</span>
+          <button id="record-btn" onclick="recordTapReading()">Record</button>
+        </div>
+        <div id="record-feedback" class="feedback"></div>
+      </div>
+      <div class="model-info">
+        <span id="sample-count">0 samples</span>
+        <span id="model-accuracy"></span>
+      </div>
+    </div>
+  </div>
+
+<script>
+async function loadPrediction() {
+  try {
+    const resp = await fetch('/api/tap-prediction');
+    const data = await resp.json();
+
+    if (data.error) {
+      document.getElementById('predicted-tap-temp').textContent = 'Error';
+      document.getElementById('prediction-display').textContent = '--';
+      return;
+    }
+
+    const stats = data.model_stats || {};
+
+    // Update prediction display
+    if (data.prediction !== null) {
+      document.getElementById('predicted-tap-temp').textContent = data.prediction.toFixed(1) + '°C';
+      document.getElementById('prediction-display').textContent = data.prediction.toFixed(1) + '°C';
+    } else {
+      document.getElementById('predicted-tap-temp').textContent = 'Not enough data';
+      document.getElementById('prediction-display').textContent = '--';
+    }
+
+    // Update model status badge
+    const badge = document.getElementById('model-status-badge');
+    if (stats.trained) {
+      badge.textContent = 'trained';
+      badge.className = 'model-badge model-trained';
+    } else {
+      badge.textContent = 'needs ' + (stats.min_samples - stats.sample_count) + ' more samples';
+      badge.className = 'model-badge model-untrained';
+    }
+
+    // Update sample count and accuracy
+    document.getElementById('sample-count').textContent = stats.sample_count + ' samples';
+    if (stats.r_squared !== null) {
+      document.getElementById('model-accuracy').textContent = 'R² = ' + stats.r_squared;
+      document.getElementById('prediction-confidence').textContent =
+        stats.r_squared > 0.8 ? 'High confidence' :
+        stats.r_squared > 0.5 ? 'Medium confidence' : 'Low confidence';
+    }
+  } catch (e) {
+    console.error('Failed to load prediction:', e);
+    document.getElementById('predicted-tap-temp').textContent = 'Error';
+  }
+}
+
+async function recordTapReading() {
+  const input = document.getElementById('tap-temp-input');
+  const feedback = document.getElementById('record-feedback');
+  const tapTemp = parseFloat(input.value);
+
+  if (isNaN(tapTemp) || tapTemp < 0 || tapTemp > 100) {
+    feedback.textContent = 'Please enter a valid temperature (0-100°C)';
+    feedback.className = 'feedback error';
+    return;
+  }
+
+  const btn = document.getElementById('record-btn');
+  btn.disabled = true;
+  btn.textContent = 'Recording...';
+
+  try {
+    const resp = await fetch('/api/tap-reading', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({tap_temp: tapTemp})
+    });
+    const data = await resp.json();
+
+    if (data.success) {
+      feedback.textContent = 'Recorded: ' + tapTemp + '°C with tank readings ' +
+        (data.reading.tank_lower || '--') + '/' + (data.reading.tank_upper || '--') + '°C';
+      feedback.className = 'feedback success';
+      input.value = '';
+      // Reload prediction with updated model
+      setTimeout(loadPrediction, 500);
+    } else {
+      feedback.textContent = 'Error: ' + (data.error || 'Unknown error');
+      feedback.className = 'feedback error';
+    }
+  } catch (e) {
+    feedback.textContent = 'Failed to record reading';
+    feedback.className = 'feedback error';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Record';
+}
+
+// Load prediction on page load
+loadPrediction();
+</script>
 {% endblock %}

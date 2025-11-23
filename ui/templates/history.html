@@ -3,10 +3,10 @@
 {% block content %}
 <div class="panel">
   <div class="panel-header">
-    <h2>Last Hour</h2>
+    <h2>{{ title }}</h2>
   </div>
   <div class="chart-container">
-    <canvas id="hourChart"></canvas>
+    <canvas id="historyChart"></canvas>
   </div>
   <div class="chart-legend">
     <span class="legend-item"><span class="legend-color" style="background:#ef4444"></span> Solar Panel</span>
@@ -17,8 +17,11 @@
 </div>
 
 <script>
+const period = '{{ period }}';
+const title = '{{ title }}';
+
 async function loadChart() {
-  const resp = await fetch('/api/hour');
+  const resp = await fetch('/api/history/' + period);
   const data = await resp.json();
 
   if (data.error) {
@@ -27,17 +30,25 @@ async function loadChart() {
   }
 
   if (!data.timestamps || data.timestamps.length === 0) {
-    document.querySelector('.chart-container').innerHTML = '<p>No data available for the last hour.</p>';
+    document.querySelector('.chart-container').innerHTML = '<p>No data available for ' + title.toLowerCase() + '.</p>';
     return;
   }
 
-  // Format timestamps for display (HH:MM)
+  // Format timestamps for display
+  // For hour: show HH:MM, for day/week: show date + time
   const labels = data.timestamps.map(ts => {
     const d = new Date(ts.replace('Z', '+00:00'));
-    return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    if (period === 'hour') {
+      return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    } else if (period === 'day') {
+      return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    } else {
+      return d.toLocaleDateString([], {month: 'short', day: 'numeric'}) + ' ' +
+             d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    }
   });
 
-  const ctx = document.getElementById('hourChart').getContext('2d');
+  const ctx = document.getElementById('historyChart').getContext('2d');
 
   new Chart(ctx, {
     type: 'line',
@@ -52,7 +63,7 @@ async function loadChart() {
           borderWidth: 2,
           tension: 0.3,
           yAxisID: 'y',
-          pointRadius: 2,
+          pointRadius: period === 'hour' ? 2 : 1,
         },
         {
           label: 'Tank Lower (°C)',
@@ -62,7 +73,7 @@ async function loadChart() {
           borderWidth: 2,
           tension: 0.3,
           yAxisID: 'y',
-          pointRadius: 2,
+          pointRadius: period === 'hour' ? 2 : 1,
         },
         {
           label: 'Tank Upper (°C)',
@@ -72,7 +83,7 @@ async function loadChart() {
           borderWidth: 2,
           tension: 0.3,
           yAxisID: 'y',
-          pointRadius: 2,
+          pointRadius: period === 'hour' ? 2 : 1,
         },
         {
           label: 'Pump %',
@@ -122,7 +133,7 @@ async function loadChart() {
             text: 'Time'
           },
           ticks: {
-            maxTicksLimit: 12
+            maxTicksLimit: period === 'week' ? 14 : 12
           }
         },
         y: {

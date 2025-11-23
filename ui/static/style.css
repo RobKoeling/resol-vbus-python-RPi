@@ -24,6 +24,16 @@ html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Robo
 .data-badge .source{background:#eef2ff;color:var(--accent);padding:6px 8px;border-radius:6px;font-weight:600;text-transform:capitalize}
 .data-badge .age{color:var(--muted);font-size:.9rem}
 
+.db-status-panel{margin-top:20px}
+.daemon-badge{padding:6px 12px;border-radius:6px;font-weight:600;text-transform:capitalize}
+.daemon-active{background:#dcfce7;color:#166534}
+.daemon-stale{background:#fef3c7;color:#92400e}
+.daemon-inactive{background:#fee2e2;color:#991b1b}
+.daemon-error{background:#fee2e2;color:#991b1b}
+.error-row{background:#fef2f2}
+.error-row .status-value{color:#991b1b}
+.status-value .age{color:var(--muted);font-weight:400}
+
 .chart-container{height:400px;position:relative;margin:16px 0}
 .chart-legend{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:12px}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:.9rem;color:#333}

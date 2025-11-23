@@ -30,4 +30,39 @@
       </div>
     {% endif %}
   </div>
+
+  {% if db_status %}
+  <div class="panel db-status-panel">
+    <div class="panel-header">
+      <h2>Database Status</h2>
+      <div class="daemon-badge daemon-{{ db_status.daemon_status }}">
+        {{ db_status.daemon_status }}
+      </div>
+    </div>
+    <div class="status-grid">
+      <div class="status-row">
+        <div class="status-label">Latest Entry</div>
+        <div class="status-value">{{ db_status.latest_ts or 'None' }}{% if db_status.latest_age %} <span class="age">({{ db_status.latest_age }})</span>{% endif %}</div>
+      </div>
+      <div class="status-row">
+        <div class="status-label">Snapshots (last 5 min)</div>
+        <div class="status-value">{{ db_status.count_last_5min }}</div>
+      </div>
+      <div class="status-row">
+        <div class="status-label">Snapshots (last hour)</div>
+        <div class="status-value">{{ db_status.count_last_hour }}</div>
+      </div>
+      <div class="status-row">
+        <div class="status-label">Total Snapshots</div>
+        <div class="status-value">{{ db_status.total_count }}</div>
+      </div>
+      {% if db_status.error %}
+      <div class="status-row error-row">
+        <div class="status-label">Error</div>
+        <div class="status-value">{{ db_status.error }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
 {% endblock %}

@@ -30,6 +30,66 @@ app = Flask(__name__, static_url_path='/static', static_folder=static_folder_pat
             template_folder=template_folder_path)
 
 
+def get_db_status(db_path=None):
+    """Get database status info: latest entry, snapshot count, daemon health."""
+    try:
+        manager = db.DBManager(path=db_path) if db_path else db.DBManager()
+        manager.connect()
+        cur = manager.conn.cursor()
+
+        # Get latest snapshot timestamp
+        cur.execute('SELECT ts FROM snapshots ORDER BY ts DESC LIMIT 1')
+        row = cur.fetchone()
+        latest_ts = row[0] if row else None
+
+        # Get count of snapshots in last hour (to check daemon activity)
+        cur.execute('''
+            SELECT COUNT(*) FROM snapshots
+            WHERE ts >= datetime('now', '-1 hour')
+        ''')
+        count_last_hour = cur.fetchone()[0]
+
+        # Get total snapshot count
+        cur.execute('SELECT COUNT(*) FROM snapshots')
+        total_count = cur.fetchone()[0]
+
+        # Get count of snapshots in last 5 minutes (daemon health check)
+        cur.execute('''
+            SELECT COUNT(*) FROM snapshots
+            WHERE ts >= datetime('now', '-5 minutes')
+        ''')
+        count_last_5min = cur.fetchone()[0]
+
+        # Determine daemon status
+        if count_last_5min > 0:
+            daemon_status = 'active'
+        elif count_last_hour > 0:
+            daemon_status = 'stale'
+        else:
+            daemon_status = 'inactive'
+
+        return {
+            'latest_ts': latest_ts,
+            'latest_age': _format_age(latest_ts) if latest_ts else None,
+            'count_last_hour': count_last_hour,
+            'count_last_5min': count_last_5min,
+            'total_count': total_count,
+            'daemon_status': daemon_status,
+            'db_connected': True
+        }
+    except Exception as e:
+        return {
+            'latest_ts': None,
+            'latest_age': None,
+            'count_last_hour': 0,
+            'count_last_5min': 0,
+            'total_count': 0,
+            'daemon_status': 'error',
+            'db_connected': False,
+            'error': str(e)
+        }
+
+
 def get_latest_snapshot(db_path=None):
     # Try to read from the SQLite snapshots table first. If the DB is not
     # present or empty (for example when running on the laptop), fall back
@@ -206,7 +266,10 @@ def index():
         ts = snap.get('ts')
         age = _format_age(ts)
 
-    return render_template('status.html', device_name=device_name, now=datetime.now(), status_fields=status_fields, data_source=source, data_age=age)
+    # Get database status
+    db_status = get_db_status()
+
+    return render_template('status.html', device_name=device_name, now=datetime.now(), status_fields=status_fields, data_source=source, data_age=age, db_status=db_status)
 
 
 def _format_age(ts_str):

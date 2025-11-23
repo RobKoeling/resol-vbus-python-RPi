@@ -6,6 +6,7 @@
     <title>RESOL Status</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     {% block head %}{% endblock %}
   </head>
   <body>
@@ -15,8 +16,8 @@
         <nav class="nav">
           <a class="nav-item" href="{{ url_for('index') }}">Current Status</a>
           <a class="nav-item" href="{{ url_for('hour') }}">Last Hour</a>
-          <a class="nav-item" href="{{ url_for('under_construction') }}">Day</a>
-          <a class="nav-item" href="{{ url_for('under_construction') }}">Week</a>
+          <a class="nav-item" href="{{ url_for('day') }}">Day</a>
+          <a class="nav-item" href="{{ url_for('week') }}">Week</a>
         </nav>
       </aside>
       <main class="main">

@@ -327,17 +327,88 @@ def _format_age(ts_str):
     return f"{days}d ago"
 
 
-def get_hourly_data(db_path=None):
-    """Fetch snapshots from the last hour and extract temperature + pump data."""
+# Mapping of period names to SQLite interval strings
+PERIOD_INTERVALS = {
+    'hour': '-1 hour',
+    'day': '-1 day',
+    'week': '-7 days',
+}
+
+
+def _parse_iso_timestamp(ts_str):
+    """Parse ISO timestamp string to datetime object."""
+    try:
+        # Handle ISO format with Z suffix
+        s = ts_str.replace('Z', '+00:00')
+        return datetime.fromisoformat(s)
+    except Exception:
+        return None
+
+
+def _get_expected_interval_minutes(cur):
+    """Determine expected interval between readings by analyzing last 100 entries.
+
+    Returns the median gap in minutes, or 5.0 as default if insufficient data.
+    """
+    cur.execute('SELECT ts FROM snapshots ORDER BY ts DESC LIMIT 100')
+    rows = cur.fetchall()
+
+    if len(rows) < 2:
+        return 5.0  # Default to 5 minutes if not enough data
+
+    # Parse timestamps and calculate gaps
+    timestamps = []
+    for (ts,) in rows:
+        dt = _parse_iso_timestamp(ts)
+        if dt:
+            timestamps.append(dt)
+
+    if len(timestamps) < 2:
+        return 5.0
+
+    # Calculate gaps between consecutive readings (timestamps are DESC, so reverse)
+    timestamps.reverse()
+    gaps = []
+    for i in range(1, len(timestamps)):
+        gap = (timestamps[i] - timestamps[i-1]).total_seconds() / 60
+        if gap > 0:
+            gaps.append(gap)
+
+    if not gaps:
+        return 5.0
+
+    # Return median gap
+    gaps.sort()
+    median_idx = len(gaps) // 2
+    return gaps[median_idx]
+
+
+def get_history_data(period='hour', db_path=None):
+    """Fetch snapshots for the given period and extract temperature + pump data.
+
+    Args:
+        period: One of 'hour', 'day', 'week'
+        db_path: Optional database path override
+
+    Gaps in data (> 2x expected interval) are represented by null values
+    so Chart.js will break the line instead of connecting across gaps.
+    """
+    interval = PERIOD_INTERVALS.get(period, '-1 hour')
+
     try:
         manager = db.DBManager(path=db_path) if db_path else db.DBManager()
         manager.connect()
         cur = manager.conn.cursor()
-        # Get snapshots from the last hour
+
+        # Determine gap threshold dynamically (2x the expected interval)
+        expected_interval = _get_expected_interval_minutes(cur)
+        gap_threshold = expected_interval * 2
+
+        # Get snapshots for the specified period
         # Note: ts is ISO format (2025-11-23T11:46:44Z), convert for comparison
-        cur.execute('''
+        cur.execute(f'''
             SELECT ts, data FROM snapshots
-            WHERE datetime(replace(replace(ts, 'T', ' '), 'Z', '')) >= datetime('now', '-1 hour')
+            WHERE datetime(replace(replace(ts, 'T', ' '), 'Z', '')) >= datetime('now', '{interval}')
             ORDER BY ts ASC
         ''')
         rows = cur.fetchall()
@@ -347,6 +418,8 @@ def get_hourly_data(db_path=None):
         temp2 = []
         temp3 = []
         pump1 = []
+
+        prev_dt = None
 
         for ts, data_text in rows:
             try:
@@ -359,6 +432,19 @@ def get_hourly_data(db_path=None):
                 continue
             device_data = list(data.values())[0] if isinstance(data, dict) else {}
 
+            # Check for gap from previous reading
+            curr_dt = _parse_iso_timestamp(ts)
+            if prev_dt and curr_dt:
+                gap_minutes = (curr_dt - prev_dt).total_seconds() / 60
+                if gap_minutes > gap_threshold:
+                    # Insert null entry to break the line in the chart
+                    timestamps.append(None)
+                    temp1.append(None)
+                    temp2.append(None)
+                    temp3.append(None)
+                    pump1.append(None)
+
+            prev_dt = curr_dt
             timestamps.append(ts)
 
             # Extract temperature values
@@ -383,23 +469,39 @@ def get_hourly_data(db_path=None):
         return {'error': str(e), 'timestamps': [], 'temp1': [], 'temp2': [], 'temp3': [], 'pump1': []}
 
 
-@app.route('/api/hour')
-def api_hour():
-    """API endpoint returning hourly temperature and pump data as JSON."""
-    data = get_hourly_data()
+# Mapping of period names to display titles
+PERIOD_TITLES = {
+    'hour': 'Last Hour',
+    'day': 'Last 24 Hours',
+    'week': 'Last 7 Days',
+}
+
+
+@app.route('/api/history/<period>')
+def api_history(period):
+    """API endpoint returning temperature and pump data for the specified period."""
+    if period not in PERIOD_INTERVALS:
+        return jsonify({'error': f'Invalid period: {period}. Use: hour, day, week'}), 400
+    data = get_history_data(period)
     return jsonify(data)
 
 
 @app.route('/hour')
 def hour():
     """Render the Last Hour graph page."""
-    return render_template('hour.html', now=datetime.now())
+    return render_template('history.html', period='hour', title=PERIOD_TITLES['hour'], now=datetime.now())
 
 
 @app.route('/day')
+def day():
+    """Render the Last 24 Hours graph page."""
+    return render_template('history.html', period='day', title=PERIOD_TITLES['day'], now=datetime.now())
+
+
 @app.route('/week')
-def under_construction():
-    return render_template('status.html', device_name=None, now=datetime.now(), status_fields=[], message='Under Construction')
+def week():
+    """Render the Last 7 Days graph page."""
+    return render_template('history.html', period='week', title=PERIOD_TITLES['week'], now=datetime.now())
 
 
 if __name__ == '__main__':

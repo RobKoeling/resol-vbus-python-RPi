@@ -335,12 +335,63 @@ PERIOD_INTERVALS = {
 }
 
 
+def _parse_iso_timestamp(ts_str):
+    """Parse ISO timestamp string to datetime object."""
+    try:
+        # Handle ISO format with Z suffix
+        s = ts_str.replace('Z', '+00:00')
+        return datetime.fromisoformat(s)
+    except Exception:
+        return None
+
+
+def _get_expected_interval_minutes(cur):
+    """Determine expected interval between readings by analyzing last 100 entries.
+
+    Returns the median gap in minutes, or 5.0 as default if insufficient data.
+    """
+    cur.execute('SELECT ts FROM snapshots ORDER BY ts DESC LIMIT 100')
+    rows = cur.fetchall()
+
+    if len(rows) < 2:
+        return 5.0  # Default to 5 minutes if not enough data
+
+    # Parse timestamps and calculate gaps
+    timestamps = []
+    for (ts,) in rows:
+        dt = _parse_iso_timestamp(ts)
+        if dt:
+            timestamps.append(dt)
+
+    if len(timestamps) < 2:
+        return 5.0
+
+    # Calculate gaps between consecutive readings (timestamps are DESC, so reverse)
+    timestamps.reverse()
+    gaps = []
+    for i in range(1, len(timestamps)):
+        gap = (timestamps[i] - timestamps[i-1]).total_seconds() / 60
+        if gap > 0:
+            gaps.append(gap)
+
+    if not gaps:
+        return 5.0
+
+    # Return median gap
+    gaps.sort()
+    median_idx = len(gaps) // 2
+    return gaps[median_idx]
+
+
 def get_history_data(period='hour', db_path=None):
     """Fetch snapshots for the given period and extract temperature + pump data.
 
     Args:
         period: One of 'hour', 'day', 'week'
         db_path: Optional database path override
+
+    Gaps in data (> 2x expected interval) are represented by null values
+    so Chart.js will break the line instead of connecting across gaps.
     """
     interval = PERIOD_INTERVALS.get(period, '-1 hour')
 
@@ -348,6 +399,11 @@ def get_history_data(period='hour', db_path=None):
         manager = db.DBManager(path=db_path) if db_path else db.DBManager()
         manager.connect()
         cur = manager.conn.cursor()
+
+        # Determine gap threshold dynamically (2x the expected interval)
+        expected_interval = _get_expected_interval_minutes(cur)
+        gap_threshold = expected_interval * 2
+
         # Get snapshots for the specified period
         # Note: ts is ISO format (2025-11-23T11:46:44Z), convert for comparison
         cur.execute(f'''
@@ -363,6 +419,8 @@ def get_history_data(period='hour', db_path=None):
         temp3 = []
         pump1 = []
 
+        prev_dt = None
+
         for ts, data_text in rows:
             try:
                 data = json.loads(data_text)
@@ -374,6 +432,19 @@ def get_history_data(period='hour', db_path=None):
                 continue
             device_data = list(data.values())[0] if isinstance(data, dict) else {}
 
+            # Check for gap from previous reading
+            curr_dt = _parse_iso_timestamp(ts)
+            if prev_dt and curr_dt:
+                gap_minutes = (curr_dt - prev_dt).total_seconds() / 60
+                if gap_minutes > gap_threshold:
+                    # Insert null entry to break the line in the chart
+                    timestamps.append(None)
+                    temp1.append(None)
+                    temp2.append(None)
+                    temp3.append(None)
+                    pump1.append(None)
+
+            prev_dt = curr_dt
             timestamps.append(ts)
 
             # Extract temperature values

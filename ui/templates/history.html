@@ -36,7 +36,9 @@ async function loadChart() {
 
   // Format timestamps for display
   // For hour: show HH:MM, for day/week: show date + time
+  // Handle null timestamps (gaps in data) by returning empty string
   const labels = data.timestamps.map(ts => {
+    if (ts === null) return '';
     const d = new Date(ts.replace('Z', '+00:00'));
     if (period === 'hour') {
       return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
@@ -64,6 +66,7 @@ async function loadChart() {
           tension: 0.3,
           yAxisID: 'y',
           pointRadius: period === 'hour' ? 2 : 1,
+          spanGaps: false,
         },
         {
           label: 'Tank Lower (°C)',
@@ -74,6 +77,7 @@ async function loadChart() {
           tension: 0.3,
           yAxisID: 'y',
           pointRadius: period === 'hour' ? 2 : 1,
+          spanGaps: false,
         },
         {
           label: 'Tank Upper (°C)',
@@ -84,6 +88,7 @@ async function loadChart() {
           tension: 0.3,
           yAxisID: 'y',
           pointRadius: period === 'hour' ? 2 : 1,
+          spanGaps: false,
         },
         {
           label: 'Pump %',

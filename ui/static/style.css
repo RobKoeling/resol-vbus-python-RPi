@@ -24,7 +24,13 @@ html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Robo
 .data-badge .source{background:#eef2ff;color:var(--accent);padding:6px 8px;border-radius:6px;font-weight:600;text-transform:capitalize}
 .data-badge .age{color:var(--muted);font-size:.9rem}
 
+.chart-container{height:400px;position:relative;margin:16px 0}
+.chart-legend{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:.9rem;color:#333}
+.legend-color{width:16px;height:16px;border-radius:3px}
+
 @media (max-width:800px){
   .sidebar{display:none}
   .container{height:auto}
+  .chart-container{height:300px}
 }

@@ -5,7 +5,7 @@ Provides a left-hand sidebar with navigation and a status panel showing
 the current device snapshot (latest snapshot from the `snapshots` table).
 """
 
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, jsonify
 from pathlib import Path
 import json
 from datetime import datetime
@@ -263,7 +263,74 @@ def _format_age(ts_str):
     return f"{days}d ago"
 
 
+def get_hourly_data(db_path=None):
+    """Fetch snapshots from the last hour and extract temperature + pump data."""
+    try:
+        manager = db.DBManager(path=db_path) if db_path else db.DBManager()
+        manager.connect()
+        cur = manager.conn.cursor()
+        # Get snapshots from the last hour
+        cur.execute('''
+            SELECT ts, data FROM snapshots
+            WHERE ts >= datetime('now', '-1 hour')
+            ORDER BY ts ASC
+        ''')
+        rows = cur.fetchall()
+
+        timestamps = []
+        temp1 = []
+        temp2 = []
+        temp3 = []
+        pump1 = []
+
+        for ts, data_text in rows:
+            try:
+                data = json.loads(data_text)
+            except Exception:
+                continue
+
+            # Get the first device's data
+            if not data:
+                continue
+            device_data = list(data.values())[0] if isinstance(data, dict) else {}
+
+            timestamps.append(ts)
+
+            # Extract temperature values
+            for field_name, target_list in [
+                ("Temp. Sensor 1", temp1),
+                ("Temp. Sensor 2", temp2),
+                ("Temp. Sensor 3", temp3),
+                ("Pump Speed Relay 1", pump1),
+            ]:
+                raw = device_data.get(field_name)
+                val, _ = db.DBManager._parse_value_and_unit(raw)
+                target_list.append(val if val is not None else None)
+
+        return {
+            'timestamps': timestamps,
+            'temp1': temp1,
+            'temp2': temp2,
+            'temp3': temp3,
+            'pump1': pump1
+        }
+    except Exception as e:
+        return {'error': str(e), 'timestamps': [], 'temp1': [], 'temp2': [], 'temp3': [], 'pump1': []}
+
+
+@app.route('/api/hour')
+def api_hour():
+    """API endpoint returning hourly temperature and pump data as JSON."""
+    data = get_hourly_data()
+    return jsonify(data)
+
+
 @app.route('/hour')
+def hour():
+    """Render the Last Hour graph page."""
+    return render_template('hour.html', now=datetime.now())
+
+
 @app.route('/day')
 @app.route('/week')
 def under_construction():

@@ -43,9 +43,10 @@ def get_db_status(db_path=None):
         latest_ts = row[0] if row else None
 
         # Get count of snapshots in last hour (to check daemon activity)
+        # Note: ts is ISO format (2025-11-23T11:46:44Z), convert for comparison
         cur.execute('''
             SELECT COUNT(*) FROM snapshots
-            WHERE ts >= datetime('now', '-1 hour')
+            WHERE datetime(replace(replace(ts, 'T', ' '), 'Z', '')) >= datetime('now', '-1 hour')
         ''')
         count_last_hour = cur.fetchone()[0]
 
@@ -56,7 +57,7 @@ def get_db_status(db_path=None):
         # Get count of snapshots in last 5 minutes (daemon health check)
         cur.execute('''
             SELECT COUNT(*) FROM snapshots
-            WHERE ts >= datetime('now', '-5 minutes')
+            WHERE datetime(replace(replace(ts, 'T', ' '), 'Z', '')) >= datetime('now', '-5 minutes')
         ''')
         count_last_5min = cur.fetchone()[0]
 
@@ -333,9 +334,10 @@ def get_hourly_data(db_path=None):
         manager.connect()
         cur = manager.conn.cursor()
         # Get snapshots from the last hour
+        # Note: ts is ISO format (2025-11-23T11:46:44Z), convert for comparison
         cur.execute('''
             SELECT ts, data FROM snapshots
-            WHERE ts >= datetime('now', '-1 hour')
+            WHERE datetime(replace(replace(ts, 'T', ' '), 'Z', '')) >= datetime('now', '-1 hour')
             ORDER BY ts ASC
         ''')
         rows = cur.fetchall()

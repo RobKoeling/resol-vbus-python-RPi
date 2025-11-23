@@ -65,7 +65,7 @@ async function loadChart() {
           borderWidth: 2,
           tension: 0.3,
           yAxisID: 'y',
-          pointRadius: period === 'hour' ? 2 : 1,
+          pointRadius: period === 'hour' ? 2 : (period === 'month' ? 0 : 1),
           spanGaps: false,
         },
         {
@@ -76,7 +76,7 @@ async function loadChart() {
           borderWidth: 2,
           tension: 0.3,
           yAxisID: 'y',
-          pointRadius: period === 'hour' ? 2 : 1,
+          pointRadius: period === 'hour' ? 2 : (period === 'month' ? 0 : 1),
           spanGaps: false,
         },
         {
@@ -87,7 +87,7 @@ async function loadChart() {
           borderWidth: 2,
           tension: 0.3,
           yAxisID: 'y',
-          pointRadius: period === 'hour' ? 2 : 1,
+          pointRadius: period === 'hour' ? 2 : (period === 'month' ? 0 : 1),
           spanGaps: false,
         },
         {
@@ -145,12 +145,12 @@ async function loadChart() {
           time: {
             displayFormats: {
               hour: 'HH:mm',
-              day: 'MMM d HH:mm'
+              day: 'MMM d'
             },
-            unit: period === 'week' ? 'day' : 'hour'
+            unit: (period === 'week' || period === 'month') ? 'day' : 'hour'
           },
           ticks: {
-            maxTicksLimit: period === 'week' ? 7 : 12
+            maxTicksLimit: period === 'month' ? 10 : (period === 'week' ? 7 : 12)
           }
         },
         y: {

@@ -347,6 +347,7 @@ PERIOD_INTERVALS = {
     'hour': '-1 hour',
     'day': '-1 day',
     'week': '-7 days',
+    'month': '-30 days',
 }
 
 
@@ -489,6 +490,7 @@ PERIOD_TITLES = {
     'hour': 'Last Hour',
     'day': 'Last 24 Hours',
     'week': 'Last 7 Days',
+    'month': 'Last 30 Days',
 }
 
 
@@ -496,7 +498,7 @@ PERIOD_TITLES = {
 def api_history(period):
     """API endpoint returning temperature and pump data for the specified period."""
     if period not in PERIOD_INTERVALS:
-        return jsonify({'error': f'Invalid period: {period}. Use: hour, day, week'}), 400
+        return jsonify({'error': f'Invalid period: {period}. Use: hour, day, week, month'}), 400
     data = get_history_data(period)
     return jsonify(data)
 
@@ -517,6 +519,12 @@ def day():
 def week():
     """Render the Last 7 Days graph page."""
     return render_template('history.html', period='week', title=PERIOD_TITLES['week'], now=datetime.now())
+
+
+@app.route('/month')
+def month():
+    """Render the Last 30 Days graph page."""
+    return render_template('history.html', period='month', title=PERIOD_TITLES['month'], now=datetime.now())
 
 
 if __name__ == '__main__':

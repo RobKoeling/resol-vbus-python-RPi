@@ -48,6 +48,10 @@
         <div class="status-value">{{ db_status.latest_ts or 'None' }}{% if db_status.latest_age %} <span class="age">({{ db_status.latest_age }})</span>{% endif %}</div>
       </div>
       <div class="status-row">
+        <div class="status-label">Collecting Since</div>
+        <div class="status-value">{{ db_status.earliest_ts[:10] if db_status.earliest_ts else 'N/A' }}</div>
+      </div>
+      <div class="status-row">
         <div class="status-label">Snapshots (last 5 min)</div>
         <div class="status-value">{{ db_status.count_last_5min }}</div>
       </div>
@@ -58,6 +62,10 @@
       <div class="status-row">
         <div class="status-label">Total Snapshots</div>
         <div class="status-value">{{ db_status.total_count }}</div>
+      </div>
+      <div class="status-row">
+        <div class="status-label">Database Size</div>
+        <div class="status-value">{{ db_status.db_size_mb }} MB</div>
       </div>
       {% if db_status.error %}
       <div class="status-row error-row">

@@ -61,6 +61,17 @@ def get_db_status(db_path=None):
         ''')
         count_last_5min = cur.fetchone()[0]
 
+        # Get earliest snapshot timestamp (data collection start date)
+        cur.execute('SELECT ts FROM snapshots ORDER BY ts ASC LIMIT 1')
+        row = cur.fetchone()
+        earliest_ts = row[0] if row else None
+
+        # Get database file size
+        import os
+        db_path = manager.path
+        db_size_bytes = os.path.getsize(db_path) if os.path.exists(db_path) else 0
+        db_size_mb = round(db_size_bytes / (1024 * 1024), 2)
+
         # Determine daemon status
         if count_last_5min > 0:
             daemon_status = 'active'
@@ -72,9 +83,11 @@ def get_db_status(db_path=None):
         return {
             'latest_ts': latest_ts,
             'latest_age': _format_age(latest_ts) if latest_ts else None,
+            'earliest_ts': earliest_ts,
             'count_last_hour': count_last_hour,
             'count_last_5min': count_last_5min,
             'total_count': total_count,
+            'db_size_mb': db_size_mb,
             'daemon_status': daemon_status,
             'db_connected': True
         }
@@ -82,9 +95,11 @@ def get_db_status(db_path=None):
         return {
             'latest_ts': None,
             'latest_age': None,
+            'earliest_ts': None,
             'count_last_hour': 0,
             'count_last_5min': 0,
             'total_count': 0,
+            'db_size_mb': 0,
             'daemon_status': 'error',
             'db_connected': False,
             'error': str(e)

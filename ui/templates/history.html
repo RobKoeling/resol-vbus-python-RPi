@@ -34,32 +34,32 @@ async function loadChart() {
     return;
   }
 
-  // Format timestamps for display
-  // For hour: show HH:MM, for day/week: show date + time
-  // Handle null timestamps (gaps in data) by returning empty string
-  const labels = data.timestamps.map(ts => {
-    if (ts === null) return '';
-    const d = new Date(ts.replace('Z', '+00:00'));
-    if (period === 'hour') {
-      return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-    } else if (period === 'day') {
-      return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-    } else {
-      return d.toLocaleDateString([], {month: 'short', day: 'numeric'}) + ' ' +
-             d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+  // Convert timestamps to Date objects for time scale
+  // Filter out null timestamps (gap markers) and create {x, y} data points
+  function makeDataset(timestamps, values) {
+    const points = [];
+    for (let i = 0; i < timestamps.length; i++) {
+      if (timestamps[i] === null || values[i] === null) {
+        points.push({x: null, y: null});
+      } else {
+        points.push({
+          x: new Date(timestamps[i].replace('Z', '+00:00')),
+          y: values[i]
+        });
+      }
     }
-  });
+    return points;
+  }
 
   const ctx = document.getElementById('historyChart').getContext('2d');
 
   new Chart(ctx, {
     type: 'line',
     data: {
-      labels: labels,
       datasets: [
         {
           label: 'Solar Panel (°C)',
-          data: data.temp1,
+          data: makeDataset(data.timestamps, data.temp1),
           borderColor: '#ef4444',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
           borderWidth: 2,
@@ -70,7 +70,7 @@ async function loadChart() {
         },
         {
           label: 'Tank Lower (°C)',
-          data: data.temp2,
+          data: makeDataset(data.timestamps, data.temp2),
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           borderWidth: 2,
@@ -81,7 +81,7 @@ async function loadChart() {
         },
         {
           label: 'Tank Upper (°C)',
-          data: data.temp3,
+          data: makeDataset(data.timestamps, data.temp3),
           borderColor: '#22c55e',
           backgroundColor: 'rgba(34, 197, 94, 0.1)',
           borderWidth: 2,
@@ -92,7 +92,7 @@ async function loadChart() {
         },
         {
           label: 'Pump %',
-          data: data.pump1,
+          data: makeDataset(data.timestamps, data.pump1),
           type: 'bar',
           backgroundColor: 'rgba(220, 38, 38, 0.3)',
           borderColor: 'rgba(220, 38, 38, 0.6)',
@@ -132,13 +132,21 @@ async function loadChart() {
       },
       scales: {
         x: {
+          type: 'time',
           display: true,
           title: {
             display: true,
             text: 'Time'
           },
+          time: {
+            displayFormats: {
+              hour: 'HH:mm',
+              day: 'MMM d HH:mm'
+            },
+            unit: period === 'week' ? 'day' : 'hour'
+          },
           ticks: {
-            maxTicksLimit: period === 'week' ? 14 : 12
+            maxTicksLimit: period === 'week' ? 7 : 12
           }
         },
         y: {

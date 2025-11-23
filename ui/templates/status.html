@@ -32,7 +32,10 @@
   </div>
 
   {% if db_status %}
-  <div class="panel db-status-panel">
+  <button class="toggle-btn" onclick="toggleDbStatus()">
+    <span id="db-toggle-icon">+</span> Database Status
+  </button>
+  <div id="db-status-panel" class="panel db-status-panel" style="display: none;">
     <div class="panel-header">
       <h2>Database Status</h2>
       <div class="daemon-badge daemon-{{ db_status.daemon_status }}">
@@ -64,5 +67,18 @@
       {% endif %}
     </div>
   </div>
+  <script>
+    function toggleDbStatus() {
+      const panel = document.getElementById('db-status-panel');
+      const icon = document.getElementById('db-toggle-icon');
+      if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        icon.textContent = '−';
+      } else {
+        panel.style.display = 'none';
+        icon.textContent = '+';
+      }
+    }
+  </script>
   {% endif %}
 {% endblock %}

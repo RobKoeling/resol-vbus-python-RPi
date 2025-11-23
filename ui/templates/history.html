@@ -108,13 +108,17 @@ async function loadChart() {
       maintainAspectRatio: false,
       interaction: {
         mode: 'index',
-        intersect: false,
+        intersect: true,
       },
       plugins: {
         legend: {
           display: false,
         },
         tooltip: {
+          filter: function(tooltipItem) {
+            // Only show tooltip if the data point has a valid y value
+            return tooltipItem.parsed.y !== null;
+          },
           callbacks: {
             label: function(context) {
               let label = context.dataset.label || '';

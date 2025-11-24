@@ -27,6 +27,10 @@
             <div class="status-value">{{ f.value }}</div>
           </div>
         {% endfor %}
+        <div class="status-row prediction-row">
+          <div class="status-label">Predicted Tap Temp</div>
+          <div class="status-value" id="predicted-tap-temp">Loading...</div>
+        </div>
       </div>
     {% endif %}
   </div>
@@ -89,4 +93,201 @@
     }
   </script>
   {% endif %}
+
+  <div class="panel prediction-panel">
+    <div class="panel-header">
+      <h2>Hot Water Prediction</h2>
+      <div id="model-status-badge" class="model-badge">Loading...</div>
+    </div>
+    <div class="prediction-content">
+      <div class="prediction-display">
+        <div class="prediction-label">Predicted Tap Temperature</div>
+        <div class="prediction-value" id="prediction-display">--</div>
+        <div class="prediction-confidence" id="prediction-confidence"></div>
+      </div>
+      <div class="prediction-form">
+        <label for="tap-temp-input">Record actual tap temperature:</label>
+        <div class="input-group">
+          <input type="number" id="tap-temp-input" placeholder="e.g., 42.5" step="0.1" min="0" max="100">
+          <span class="input-unit">°C</span>
+          <button id="record-btn" onclick="recordTapReading()">Record</button>
+        </div>
+        <div id="record-feedback" class="feedback"></div>
+      </div>
+      <div class="model-info">
+        <span id="sample-count">0 samples</span>
+        <span id="model-accuracy"></span>
+      </div>
+    </div>
+  </div>
+
+<script>
+async function loadPrediction() {
+  try {
+    const resp = await fetch('/api/tap-prediction');
+    const data = await resp.json();
+
+    if (data.error) {
+      document.getElementById('predicted-tap-temp').textContent = 'Error';
+      document.getElementById('prediction-display').textContent = '--';
+      return;
+    }
+
+    const stats = data.model_stats || {};
+
+    // Update prediction display
+    if (data.prediction !== null) {
+      document.getElementById('predicted-tap-temp').textContent = data.prediction.toFixed(1) + '°C';
+      document.getElementById('prediction-display').textContent = data.prediction.toFixed(1) + '°C';
+    } else {
+      document.getElementById('predicted-tap-temp').textContent = 'Not enough data';
+      document.getElementById('prediction-display').textContent = '--';
+    }
+
+    // Update model status badge
+    const badge = document.getElementById('model-status-badge');
+    if (stats.trained) {
+      badge.textContent = 'trained';
+      badge.className = 'model-badge model-trained';
+    } else {
+      badge.textContent = 'needs ' + (stats.min_samples - stats.sample_count) + ' more samples';
+      badge.className = 'model-badge model-untrained';
+    }
+
+    // Update sample count and accuracy
+    document.getElementById('sample-count').textContent = stats.sample_count + ' samples';
+    if (stats.r_squared !== null) {
+      document.getElementById('model-accuracy').textContent = 'R² = ' + stats.r_squared;
+      document.getElementById('prediction-confidence').textContent =
+        stats.r_squared > 0.8 ? 'High confidence' :
+        stats.r_squared > 0.5 ? 'Medium confidence' : 'Low confidence';
+    }
+  } catch (e) {
+    console.error('Failed to load prediction:', e);
+    document.getElementById('predicted-tap-temp').textContent = 'Error';
+  }
+}
+
+async function recordTapReading() {
+  const input = document.getElementById('tap-temp-input');
+  const feedback = document.getElementById('record-feedback');
+  const tapTemp = parseFloat(input.value);
+
+  if (isNaN(tapTemp) || tapTemp < 0 || tapTemp > 100) {
+    feedback.textContent = 'Please enter a valid temperature (0-100°C)';
+    feedback.className = 'feedback error';
+    return;
+  }
+
+  const btn = document.getElementById('record-btn');
+  btn.disabled = true;
+  btn.textContent = 'Recording...';
+
+  try {
+    const resp = await fetch('/api/tap-reading', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({tap_temp: tapTemp})
+    });
+    const data = await resp.json();
+
+    if (data.success) {
+      feedback.textContent = 'Recorded: ' + tapTemp + '°C with tank readings ' +
+        (data.reading.tank_lower || '--') + '/' + (data.reading.tank_upper || '--') + '°C';
+      feedback.className = 'feedback success';
+      input.value = '';
+      // Reload prediction with updated model
+      setTimeout(loadPrediction, 500);
+    } else {
+      feedback.textContent = 'Error: ' + (data.error || 'Unknown error');
+      feedback.className = 'feedback error';
+    }
+  } catch (e) {
+    feedback.textContent = 'Failed to record reading';
+    feedback.className = 'feedback error';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Record';
+}
+
+// Load prediction on page load
+loadPrediction();
+
+async function loadTapReadings() {
+  const container = document.getElementById('tap-readings-container');
+  try {
+    const resp = await fetch('/api/tap-readings?limit=100');
+    const data = await resp.json();
+
+    if (data.error) {
+      container.innerHTML = '<p class="error">Error loading readings</p>';
+      return;
+    }
+
+    if (!data.readings || data.readings.length === 0) {
+      container.innerHTML = '<p>No tap readings recorded yet.</p>';
+      return;
+    }
+
+    // Format timestamp to show date and HH:MM only
+    function formatTime(ts) {
+      if (!ts) return '--';
+      const date = ts.substring(0, 10);  // YYYY-MM-DD
+      const time = ts.substring(11, 16); // HH:MM
+      return date + ' ' + time;
+    }
+
+    const needsScroll = data.readings.length > 10;
+    let html = needsScroll ? '<div class="readings-scroll">' : '';
+    html += '<table class="readings-table"><thead><tr>' +
+      '<th>Date/Time</th><th>Tap Temp</th><th>Tank Lower</th><th>Tank Upper</th>' +
+      '</tr></thead><tbody>';
+
+    for (const r of data.readings) {
+      html += '<tr>' +
+        '<td>' + formatTime(r.ts) + '</td>' +
+        '<td>' + (r.tap_temp !== null ? r.tap_temp.toFixed(1) + '°C' : '--') + '</td>' +
+        '<td>' + (r.tank_lower !== null ? r.tank_lower.toFixed(1) + '°C' : '--') + '</td>' +
+        '<td>' + (r.tank_upper !== null ? r.tank_upper.toFixed(1) + '°C' : '--') + '</td>' +
+        '</tr>';
+    }
+
+    html += '</tbody></table>';
+    if (needsScroll) html += '</div>';
+    if (data.total_count > 100) {
+      html += '<p class="readings-note">Showing 100 of ' + data.total_count + ' readings</p>';
+    }
+    container.innerHTML = html;
+  } catch (e) {
+    console.error('Failed to load tap readings:', e);
+    container.innerHTML = '<p class="error">Failed to load readings</p>';
+  }
+}
+
+function toggleTapReadings() {
+  const panel = document.getElementById('tap-readings-panel');
+  const icon = document.getElementById('readings-toggle-icon');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    icon.textContent = '−';
+    loadTapReadings();
+  } else {
+    panel.style.display = 'none';
+    icon.textContent = '+';
+  }
+}
+</script>
+
+<button class="toggle-btn" onclick="toggleTapReadings()">
+  <span id="readings-toggle-icon">+</span> Tap Readings History
+</button>
+<div id="tap-readings-panel" class="panel readings-panel" style="display: none;">
+  <div class="panel-header">
+    <h2>Recorded Tap Readings</h2>
+  </div>
+  <div id="tap-readings-container">
+    <p>Loading...</p>
+  </div>
+</div>
 {% endblock %}

@@ -241,13 +241,14 @@ async function loadTapReadings() {
     const needsScroll = data.readings.length > 10;
     let html = needsScroll ? '<div class="readings-scroll">' : '';
     html += '<table class="readings-table"><thead><tr>' +
-      '<th>Date/Time</th><th>Tap Temp</th><th>Tank Lower</th><th>Tank Upper</th>' +
+      '<th>Date/Time</th><th>Tap Temp</th><th>Predicted</th><th>Tank Lower</th><th>Tank Upper</th>' +
       '</tr></thead><tbody>';
 
     for (const r of data.readings) {
       html += '<tr>' +
         '<td>' + formatTime(r.ts) + '</td>' +
         '<td>' + (r.tap_temp !== null ? r.tap_temp.toFixed(1) + '°C' : '--') + '</td>' +
+        '<td>' + (r.predicted_temp !== null ? r.predicted_temp.toFixed(1) + '°C' : '--') + '</td>' +
         '<td>' + (r.tank_lower !== null ? r.tank_lower.toFixed(1) + '°C' : '--') + '</td>' +
         '<td>' + (r.tank_upper !== null ? r.tank_upper.toFixed(1) + '°C' : '--') + '</td>' +
         '</tr>';

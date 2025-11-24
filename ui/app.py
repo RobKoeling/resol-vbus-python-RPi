@@ -547,11 +547,17 @@ def api_tap_reading():
         if tank_lower is None or tank_upper is None:
             return jsonify({'error': 'Could not parse tank temperatures from serial reading'}), 500
 
-        # Store the reading
+        # Get the current prediction before storing (if model is trained)
+        predicted_temp = None
+        if ui_predictor:
+            predictor = ui_predictor.get_predictor()
+            predicted_temp = predictor.predict(tank_lower, tank_upper)
+
+        # Store the reading with the prediction
         ts = datetime.utcnow().isoformat() + 'Z'
         manager = db.DBManager()
         manager.connect()
-        manager.insert_tap_reading(ts, tap_temp, tank_lower, tank_upper)
+        manager.insert_tap_reading(ts, tap_temp, tank_lower, tank_upper, predicted_temp)
 
         # Retrain the predictor with new data
         if ui_predictor:
@@ -563,7 +569,8 @@ def api_tap_reading():
                 'ts': ts,
                 'tap_temp': tap_temp,
                 'tank_lower': tank_lower,
-                'tank_upper': tank_upper
+                'tank_upper': tank_upper,
+                'predicted_temp': round(predicted_temp, 1) if predicted_temp is not None else None
             }
         })
     except ValueError as e:

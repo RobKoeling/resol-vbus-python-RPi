@@ -62,11 +62,18 @@ class DBManager:
                 ts TEXT NOT NULL,
                 tap_temp REAL NOT NULL,
                 tank_lower REAL,
-                tank_upper REAL
+                tank_upper REAL,
+                predicted_temp REAL
             )
             '''
         )
         cur.execute('CREATE INDEX IF NOT EXISTS idx_tap_readings_ts ON tap_readings(ts)')
+
+        # Add predicted_temp column if it doesn't exist (for existing databases)
+        try:
+            cur.execute('ALTER TABLE tap_readings ADD COLUMN predicted_temp REAL')
+        except sqlite3.OperationalError:
+            pass  # Column already exists
         self.conn.commit()
 
     def insert_snapshot(self, ts: str, snapshot: Dict[str, Dict[str, str]]):
@@ -105,22 +112,22 @@ class DBManager:
             cur.executemany('INSERT INTO measurements (ts, device, field, value, unit) VALUES (?,?,?,?,?)', rows)
             self.conn.commit()
 
-    def insert_tap_reading(self, ts: str, tap_temp: float, tank_lower: float, tank_upper: float):
-        """Insert a manual tap temperature reading with corresponding tank sensor values."""
+    def insert_tap_reading(self, ts: str, tap_temp: float, tank_lower: float, tank_upper: float, predicted_temp: float = None):
+        """Insert a manual tap temperature reading with corresponding tank sensor values and prediction."""
         if self.conn is None:
             self.connect()
 
         cur = self.conn.cursor()
         cur.execute(
-            'INSERT INTO tap_readings (ts, tap_temp, tank_lower, tank_upper) VALUES (?, ?, ?, ?)',
-            (ts, tap_temp, tank_lower, tank_upper)
+            'INSERT INTO tap_readings (ts, tap_temp, tank_lower, tank_upper, predicted_temp) VALUES (?, ?, ?, ?, ?)',
+            (ts, tap_temp, tank_lower, tank_upper, predicted_temp)
         )
         self.conn.commit()
 
     def get_tap_readings(self, limit: int = None):
         """Retrieve tap readings for training the prediction model.
 
-        Returns list of dicts with keys: ts, tap_temp, tank_lower, tank_upper
+        Returns list of dicts with keys: ts, tap_temp, tank_lower, tank_upper, predicted_temp
         """
         if self.conn is None:
             self.connect()
@@ -128,15 +135,15 @@ class DBManager:
         cur = self.conn.cursor()
         if limit:
             cur.execute(
-                'SELECT ts, tap_temp, tank_lower, tank_upper FROM tap_readings ORDER BY ts DESC LIMIT ?',
+                'SELECT ts, tap_temp, tank_lower, tank_upper, predicted_temp FROM tap_readings ORDER BY ts DESC LIMIT ?',
                 (limit,)
             )
         else:
-            cur.execute('SELECT ts, tap_temp, tank_lower, tank_upper FROM tap_readings ORDER BY ts DESC')
+            cur.execute('SELECT ts, tap_temp, tank_lower, tank_upper, predicted_temp FROM tap_readings ORDER BY ts DESC')
 
         rows = cur.fetchall()
         return [
-            {'ts': r[0], 'tap_temp': r[1], 'tank_lower': r[2], 'tank_upper': r[3]}
+            {'ts': r[0], 'tap_temp': r[1], 'tank_lower': r[2], 'tank_upper': r[3], 'predicted_temp': r[4]}
             for r in rows
         ]
 

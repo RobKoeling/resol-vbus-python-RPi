@@ -11,7 +11,7 @@ html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Robo
 .nav{display:flex;flex-direction:column;gap:8px}
 .nav-item{display:block;padding:10px;border-radius:6px;color:#dbeafe;text-decoration:none}
 .nav-item:hover{background:#0b1220}
-.main{flex:1;padding:24px;box-sizing:border-box}
+.main{flex:1;padding:24px;padding-bottom:60px;box-sizing:border-box}
 .panel{background:#fff;border-radius:8px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
 .meta{display:flex;gap:16px;color:var(--muted);margin-bottom:12px}
 .status-grid{display:flex;flex-direction:column;gap:10px}

@@ -193,7 +193,7 @@ loadPrediction();
 async function loadTapReadings() {
   const container = document.getElementById('tap-readings-container');
   try {
-    const resp = await fetch('/api/tap-readings?limit=50');
+    const resp = await fetch('/api/tap-readings?limit=100');
     const data = await resp.json();
 
     if (data.error) {
@@ -206,14 +206,23 @@ async function loadTapReadings() {
       return;
     }
 
-    let html = '<table class="readings-table"><thead><tr>' +
+    // Format timestamp to show date and HH:MM only
+    function formatTime(ts) {
+      if (!ts) return '--';
+      const date = ts.substring(0, 10);  // YYYY-MM-DD
+      const time = ts.substring(11, 16); // HH:MM
+      return date + ' ' + time;
+    }
+
+    const needsScroll = data.readings.length > 10;
+    let html = needsScroll ? '<div class="readings-scroll">' : '';
+    html += '<table class="readings-table"><thead><tr>' +
       '<th>Date/Time</th><th>Tap Temp</th><th>Tank Lower</th><th>Tank Upper</th>' +
       '</tr></thead><tbody>';
 
     for (const r of data.readings) {
-      const ts = r.ts ? r.ts.replace('T', ' ').replace('Z', '') : '--';
       html += '<tr>' +
-        '<td>' + ts + '</td>' +
+        '<td>' + formatTime(r.ts) + '</td>' +
         '<td>' + (r.tap_temp !== null ? r.tap_temp.toFixed(1) + '°C' : '--') + '</td>' +
         '<td>' + (r.tank_lower !== null ? r.tank_lower.toFixed(1) + '°C' : '--') + '</td>' +
         '<td>' + (r.tank_upper !== null ? r.tank_upper.toFixed(1) + '°C' : '--') + '</td>' +
@@ -221,8 +230,9 @@ async function loadTapReadings() {
     }
 
     html += '</tbody></table>';
-    if (data.total_count > 50) {
-      html += '<p class="readings-note">Showing 50 of ' + data.total_count + ' readings</p>';
+    if (needsScroll) html += '</div>';
+    if (data.total_count > 100) {
+      html += '<p class="readings-note">Showing 100 of ' + data.total_count + ' readings</p>';
     }
     container.innerHTML = html;
   } catch (e) {

@@ -189,5 +189,71 @@ async function recordTapReading() {
 
 // Load prediction on page load
 loadPrediction();
+
+async function loadTapReadings() {
+  const container = document.getElementById('tap-readings-container');
+  try {
+    const resp = await fetch('/api/tap-readings?limit=50');
+    const data = await resp.json();
+
+    if (data.error) {
+      container.innerHTML = '<p class="error">Error loading readings</p>';
+      return;
+    }
+
+    if (!data.readings || data.readings.length === 0) {
+      container.innerHTML = '<p>No tap readings recorded yet.</p>';
+      return;
+    }
+
+    let html = '<table class="readings-table"><thead><tr>' +
+      '<th>Date/Time</th><th>Tap Temp</th><th>Tank Lower</th><th>Tank Upper</th>' +
+      '</tr></thead><tbody>';
+
+    for (const r of data.readings) {
+      const ts = r.ts ? r.ts.replace('T', ' ').replace('Z', '') : '--';
+      html += '<tr>' +
+        '<td>' + ts + '</td>' +
+        '<td>' + (r.tap_temp !== null ? r.tap_temp.toFixed(1) + '°C' : '--') + '</td>' +
+        '<td>' + (r.tank_lower !== null ? r.tank_lower.toFixed(1) + '°C' : '--') + '</td>' +
+        '<td>' + (r.tank_upper !== null ? r.tank_upper.toFixed(1) + '°C' : '--') + '</td>' +
+        '</tr>';
+    }
+
+    html += '</tbody></table>';
+    if (data.total_count > 50) {
+      html += '<p class="readings-note">Showing 50 of ' + data.total_count + ' readings</p>';
+    }
+    container.innerHTML = html;
+  } catch (e) {
+    console.error('Failed to load tap readings:', e);
+    container.innerHTML = '<p class="error">Failed to load readings</p>';
+  }
+}
+
+function toggleTapReadings() {
+  const panel = document.getElementById('tap-readings-panel');
+  const icon = document.getElementById('readings-toggle-icon');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    icon.textContent = '−';
+    loadTapReadings();
+  } else {
+    panel.style.display = 'none';
+    icon.textContent = '+';
+  }
+}
 </script>
+
+<button class="toggle-btn" onclick="toggleTapReadings()">
+  <span id="readings-toggle-icon">+</span> Tap Readings History
+</button>
+<div id="tap-readings-panel" class="panel readings-panel" style="display: none;">
+  <div class="panel-header">
+    <h2>Recorded Tap Readings</h2>
+  </div>
+  <div id="tap-readings-container">
+    <p>Loading...</p>
+  </div>
+</div>
 {% endblock %}

@@ -70,6 +70,19 @@ html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Robo
 
 .model-info{display:flex;gap:16px;color:var(--muted);font-size:.85rem;justify-content:center}
 
+.toggle-btn{margin-top:20px;padding:10px 16px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-size:.9rem;color:#64748b;width:100%;text-align:left}
+.toggle-btn:hover{background:#e2e8f0}
+.toggle-btn span{font-weight:700;margin-right:8px}
+
+.readings-panel{margin-top:8px}
+.readings-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.readings-table th,.readings-table td{padding:10px 12px;text-align:left;border-bottom:1px solid #f0f3f7}
+.readings-table th{background:#f8fafc;font-weight:600;color:#333}
+.readings-table tr:hover{background:#f8fafc}
+.readings-table td:not(:first-child){text-align:right}
+.readings-table th:not(:first-child){text-align:right}
+.readings-note{margin-top:12px;color:var(--muted);font-size:.85rem;text-align:center}
+
 @media (max-width:800px){
   .sidebar{display:none}
   .container{height:auto}

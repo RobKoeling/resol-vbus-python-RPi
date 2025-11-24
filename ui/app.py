@@ -499,7 +499,7 @@ def api_tap_reading():
     """Submit a manual tap temperature reading.
 
     Expects JSON: {"tap_temp": <float>}
-    Automatically fetches current tank readings from latest snapshot.
+    Takes a fresh reading from the serial port for accurate tank temperatures.
     """
     try:
         data = request.get_json()
@@ -510,10 +510,10 @@ def api_tap_reading():
         if tap_temp < 0 or tap_temp > 100:
             return jsonify({'error': 'tap_temp must be between 0 and 100'}), 400
 
-        # Get current tank readings from latest snapshot
-        snap = get_latest_snapshot()
+        # Get fresh tank readings from serial port (not from potentially stale DB)
+        snap = get_live_snapshot_from_serial(read_seconds=3.0)
         if snap is None:
-            return jsonify({'error': 'No snapshot available to get tank readings'}), 500
+            return jsonify({'error': 'Could not read from serial port. Is the device connected?'}), 500
 
         device_data = {}
         if snap and snap.get('data'):
@@ -526,6 +526,9 @@ def api_tap_reading():
 
         tank_lower, _ = db.DBManager._parse_value_and_unit(tank_lower_raw)
         tank_upper, _ = db.DBManager._parse_value_and_unit(tank_upper_raw)
+
+        if tank_lower is None or tank_upper is None:
+            return jsonify({'error': 'Could not parse tank temperatures from serial reading'}), 500
 
         # Store the reading
         ts = datetime.utcnow().isoformat() + 'Z'

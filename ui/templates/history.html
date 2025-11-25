@@ -58,7 +58,17 @@ async function loadChart() {
     return points;
   }
 
+  // Generate point radius array: show markers only for tooltip points
+  function getPointRadius(dataset) {
+    return dataset.map(point => point.showTooltip ? 3 : 0);
+  }
+
   const ctx = document.getElementById('historyChart').getContext('2d');
+
+  // Create datasets
+  const temp1Data = makeDataset(data.timestamps, data.temp1);
+  const temp2Data = makeDataset(data.timestamps, data.temp2);
+  const temp3Data = makeDataset(data.timestamps, data.temp3);
 
   new Chart(ctx, {
     type: 'line',
@@ -66,35 +76,35 @@ async function loadChart() {
       datasets: [
         {
           label: 'Solar Panel (°C)',
-          data: makeDataset(data.timestamps, data.temp1),
+          data: temp1Data,
           borderColor: '#ef4444',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
           borderWidth: 2,
           tension: 0.3,
           yAxisID: 'y',
-          pointRadius: period === 'hour' ? 2 : (period === 'month' ? 0 : 1),
+          pointRadius: getPointRadius(temp1Data),
           spanGaps: false,
         },
         {
           label: 'Tank Lower (°C)',
-          data: makeDataset(data.timestamps, data.temp2),
+          data: temp2Data,
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           borderWidth: 2,
           tension: 0.3,
           yAxisID: 'y',
-          pointRadius: period === 'hour' ? 2 : (period === 'month' ? 0 : 1),
+          pointRadius: getPointRadius(temp2Data),
           spanGaps: false,
         },
         {
           label: 'Tank Upper (°C)',
-          data: makeDataset(data.timestamps, data.temp3),
+          data: temp3Data,
           borderColor: '#22c55e',
           backgroundColor: 'rgba(34, 197, 94, 0.1)',
           borderWidth: 2,
           tension: 0.3,
           yAxisID: 'y',
-          pointRadius: period === 'hour' ? 2 : (period === 'month' ? 0 : 1),
+          pointRadius: getPointRadius(temp3Data),
           spanGaps: false,
         },
         {

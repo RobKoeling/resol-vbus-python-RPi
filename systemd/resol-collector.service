@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=rob
 WorkingDirectory=/home/rob/resol-vbus-python-RPi
-ExecStart=/usr/bin/python3 /home/rob/resol-vbus-python-RPi/collector.py --db /home/rob/resol-vbus-python-RPi/data/resol_data.db --interval 5
+ExecStart=/usr/bin/python3 /home/rob/resol-vbus-python-RPi/collector.py --db /home/rob/resol-vbus-python-RPi/data/resol_data.db --interval 0.5
 Restart=always
 RestartSec=10
 

@@ -64,13 +64,17 @@ def connect_device():
         raise RuntimeError('collector requires config.connection be "lan" or "serial"')
 
 
-def run_collector(db_path: str, interval_minutes: int):
+def run_collector(db_path: str, interval_minutes: float):
     db = DBManager(db_path)
     db.connect()
 
     from parser import parse_raw_bytes
 
-    print(f'Starting collector: interval={interval_minutes}min db={db_path}')
+    interval_seconds = interval_minutes * 60
+    if interval_seconds < 60:
+        print(f'Starting collector: interval={interval_seconds:.0f}s db={db_path}')
+    else:
+        print(f'Starting collector: interval={interval_minutes}min db={db_path}')
     try:
         while True:
             ts = datetime.utcnow().isoformat() + 'Z'
@@ -111,7 +115,7 @@ def run_collector(db_path: str, interval_minutes: int):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--db', default='data/resol_data.db', help='SQLite DB path')
-    p.add_argument('--interval', type=int, default=5, help='Interval in minutes between snapshots (default 5)')
+    p.add_argument('--interval', type=float, default=5, help='Interval in minutes between snapshots (default 5; use 0.5 for 30 seconds)')
     args = p.parse_args()
     run_collector(args.db, args.interval)
 

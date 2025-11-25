@@ -36,16 +36,18 @@ async function loadChart() {
 
   // Convert timestamps to Date objects for time scale
   // Filter out null timestamps (gap markers) and create {x, y} data points
-  // Mark points at 5-minute intervals for tooltips
+  // Mark every 10th point for tooltips (30s * 10 = 5 minutes)
   function makeDataset(timestamps, values) {
     const points = [];
+    let dataPointCounter = 0;
     for (let i = 0; i < timestamps.length; i++) {
       if (timestamps[i] === null || values[i] === null) {
         points.push({x: null, y: null, showTooltip: false});
       } else {
         const date = new Date(timestamps[i].replace('Z', '+00:00'));
-        // Show tooltip only if minutes are divisible by 5 (e.g., :00, :05, :10, :15, etc.)
-        const showTooltip = date.getMinutes() % 5 === 0 && date.getSeconds() === 0;
+        // Show tooltip every 10th data point (approximately every 5 minutes with 30s intervals)
+        const showTooltip = (dataPointCounter % 10 === 0);
+        dataPointCounter++;
         points.push({
           x: date,
           y: values[i],

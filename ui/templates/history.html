@@ -36,15 +36,20 @@ async function loadChart() {
 
   // Convert timestamps to Date objects for time scale
   // Filter out null timestamps (gap markers) and create {x, y} data points
+  // Mark points at 5-minute intervals for tooltips
   function makeDataset(timestamps, values) {
     const points = [];
     for (let i = 0; i < timestamps.length; i++) {
       if (timestamps[i] === null || values[i] === null) {
-        points.push({x: null, y: null});
+        points.push({x: null, y: null, showTooltip: false});
       } else {
+        const date = new Date(timestamps[i].replace('Z', '+00:00'));
+        // Show tooltip only if minutes are divisible by 5 (e.g., :00, :05, :10, :15, etc.)
+        const showTooltip = date.getMinutes() % 5 === 0 && date.getSeconds() === 0;
         points.push({
-          x: new Date(timestamps[i].replace('Z', '+00:00')),
-          y: values[i]
+          x: date,
+          y: values[i],
+          showTooltip: showTooltip
         });
       }
     }
@@ -116,8 +121,9 @@ async function loadChart() {
         },
         tooltip: {
           filter: function(tooltipItem) {
-            // Only show tooltip if the data point has a valid y value
-            return tooltipItem.parsed.y !== null;
+            // Only show tooltip if the data point has a valid y value and is marked for tooltip display (5-minute intervals)
+            const dataPoint = tooltipItem.dataset.data[tooltipItem.dataIndex];
+            return tooltipItem.parsed.y !== null && dataPoint.showTooltip === true;
           },
           callbacks: {
             label: function(context) {

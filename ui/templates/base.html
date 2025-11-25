@@ -32,6 +32,29 @@
         {% block content %}{% endblock %}
       </main>
     </div>
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+      <a class="mobile-nav-item" href="{{ url_for('index') }}">
+        <span class="icon">🏠</span>
+        <span>Status</span>
+      </a>
+      <a class="mobile-nav-item" href="{{ url_for('hour') }}">
+        <span class="icon">📊</span>
+        <span>Hour</span>
+      </a>
+      <a class="mobile-nav-item" href="{{ url_for('day') }}">
+        <span class="icon">📈</span>
+        <span>Day</span>
+      </a>
+      <a class="mobile-nav-item" href="{{ url_for('week') }}">
+        <span class="icon">📅</span>
+        <span>Week</span>
+      </a>
+      <a class="mobile-nav-item" href="{{ url_for('month') }}">
+        <span class="icon">📆</span>
+        <span>Month</span>
+      </a>
+    </nav>
     <!-- Service Worker Registration -->
     <script>
       if ('serviceWorker' in navigator) {

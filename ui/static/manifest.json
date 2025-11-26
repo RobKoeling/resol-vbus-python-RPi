@@ -2,7 +2,7 @@
   "name": "Resol Solar Controller",
   "short_name": "Resol",
   "description": "Monitor solar heating system with RESOL VBUS controller",
-  "start_url": "/",
+  "start_url": "/shower",
   "scope": "/",
   "display": "standalone",
   "background_color": "#1a1a1a",

@@ -2,6 +2,12 @@
 
 {% block content %}
 <div class="shower-container" style="background-color: {{ color }};">
+  <div class="shower-header">
+    <div class="shower-title">Shower Temperature</div>
+    {% if snapshot_time %}
+    <div class="shower-timestamp" id="snapshotTime"></div>
+    {% endif %}
+  </div>
   {% if error_message %}
     <div class="shower-content">
       <div class="comfort-label">Predictor Not Ready</div>
@@ -37,6 +43,17 @@
 <script>
 const predictedTemp = {{ predicted_temp if predicted_temp is not none else 'null' }};
 const comfortLevel = '{{ comfort_level }}';
+const snapshotTime = '{{ snapshot_time }}';
+
+// Format timestamp as "Day HH:MM"
+if (snapshotTime) {
+  const date = new Date(snapshotTime.replace('Z', '+00:00'));
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayName = days[date.getDay()];
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  document.getElementById('snapshotTime').textContent = `${dayName} ${hours}:${minutes}`;
+}
 
 function submitFeedback(feedback) {
   if (!predictedTemp) return;

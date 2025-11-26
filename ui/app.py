@@ -716,11 +716,17 @@ def shower():
         except Exception as e:
             error_message = f'Prediction error: {str(e)}'
 
+    # Get timestamp from snapshot if available
+    snapshot_time = None
+    if snapshot and snapshot.get('ts'):
+        snapshot_time = snapshot['ts']
+
     return render_template('shower.html',
                          predicted_temp=predicted_temp,
                          comfort_level=comfort_level,
                          color=color,
                          error_message=error_message,
+                         snapshot_time=snapshot_time,
                          now=datetime.now())
 
 

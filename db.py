@@ -74,6 +74,20 @@ class DBManager:
             cur.execute('ALTER TABLE tap_readings ADD COLUMN predicted_temp REAL')
         except sqlite3.OperationalError:
             pass  # Column already exists
+
+        # shower_feedback table: stores user feedback on shower comfort predictions
+        cur.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS shower_feedback (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ts TEXT NOT NULL,
+                predicted_temp REAL,
+                comfort_level TEXT,
+                feedback TEXT
+            )
+            '''
+        )
+        cur.execute('CREATE INDEX IF NOT EXISTS idx_shower_feedback_ts ON shower_feedback(ts)')
         self.conn.commit()
 
     def insert_snapshot(self, ts: str, snapshot: Dict[str, Dict[str, str]]):
@@ -155,6 +169,48 @@ class DBManager:
         cur = self.conn.cursor()
         cur.execute('SELECT COUNT(*) FROM tap_readings')
         return cur.fetchone()[0]
+
+    def insert_shower_feedback(self, ts: str, predicted_temp: float, comfort_level: str, feedback: str):
+        """Insert user feedback on shower comfort prediction.
+
+        Args:
+            ts: ISO timestamp
+            predicted_temp: Predicted tap temperature
+            comfort_level: Comfort level shown to user (Cold, Luke Warm, Comfortable, Hot)
+            feedback: User feedback (thumbs_up or thumbs_down)
+        """
+        if self.conn is None:
+            self.connect()
+
+        cur = self.conn.cursor()
+        cur.execute(
+            'INSERT INTO shower_feedback (ts, predicted_temp, comfort_level, feedback) VALUES (?, ?, ?, ?)',
+            (ts, predicted_temp, comfort_level, feedback)
+        )
+        self.conn.commit()
+
+    def get_shower_feedback(self, limit: int = None):
+        """Retrieve shower feedback for analytics.
+
+        Returns list of dicts with keys: ts, predicted_temp, comfort_level, feedback
+        """
+        if self.conn is None:
+            self.connect()
+
+        cur = self.conn.cursor()
+        if limit:
+            cur.execute(
+                'SELECT ts, predicted_temp, comfort_level, feedback FROM shower_feedback ORDER BY ts DESC LIMIT ?',
+                (limit,)
+            )
+        else:
+            cur.execute('SELECT ts, predicted_temp, comfort_level, feedback FROM shower_feedback ORDER BY ts DESC')
+
+        rows = cur.fetchall()
+        return [
+            {'ts': r[0], 'predicted_temp': r[1], 'comfort_level': r[2], 'feedback': r[3]}
+            for r in rows
+        ]
 
     @staticmethod
     def _parse_value_and_unit(raw: str):

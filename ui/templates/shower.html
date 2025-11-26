@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="shower-container" style="background-color: {{ color }};">
+  {% if error_message %}
+    <div class="shower-content">
+      <div class="comfort-label">Predictor Not Ready</div>
+      <div class="comfort-temp">{{ error_message }}</div>
+    </div>
+  {% else %}
+    <div class="shower-content">
+      <div class="comfort-label">{{ comfort_level }}</div>
+      {% if predicted_temp is not none %}
+        <div class="comfort-temp">{{ predicted_temp|round(1) }}°C</div>
+      {% else %}
+        <div class="comfort-temp">No prediction available</div>
+      {% endif %}
+    </div>
+
+    {% if predicted_temp is not none %}
+    <div class="feedback-container" id="feedbackContainer">
+      <div class="feedback-prompt">Was this accurate?</div>
+      <div class="feedback-buttons">
+        <button class="feedback-btn thumbs-up" onclick="submitFeedback('thumbs_up')">
+          <span class="feedback-icon">👍</span>
+        </button>
+        <button class="feedback-btn thumbs-down" onclick="submitFeedback('thumbs_down')">
+          <span class="feedback-icon">👎</span>
+        </button>
+      </div>
+      <div class="feedback-message" id="feedbackMessage"></div>
+    </div>
+    {% endif %}
+  {% endif %}
+</div>
+
+<script>
+const predictedTemp = {{ predicted_temp if predicted_temp is not none else 'null' }};
+const comfortLevel = '{{ comfort_level }}';
+
+function submitFeedback(feedback) {
+  if (!predictedTemp) return;
+
+  fetch('/api/shower-feedback', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      predicted_temp: predictedTemp,
+      comfort_level: comfortLevel,
+      feedback: feedback
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('feedbackMessage').textContent = 'Thanks for your feedback!';
+      document.getElementById('feedbackMessage').style.display = 'block';
+      // Hide feedback buttons after submission
+      document.querySelector('.feedback-buttons').style.display = 'none';
+      document.querySelector('.feedback-prompt').style.display = 'none';
+      // Hide the message after 3 seconds
+      setTimeout(() => {
+        document.getElementById('feedbackMessage').style.display = 'none';
+        document.querySelector('.feedback-buttons').style.display = 'flex';
+        document.querySelector('.feedback-prompt').style.display = 'block';
+      }, 3000);
+    } else {
+      document.getElementById('feedbackMessage').textContent = 'Error: ' + data.error;
+      document.getElementById('feedbackMessage').style.display = 'block';
+    }
+  })
+  .catch(error => {
+    document.getElementById('feedbackMessage').textContent = 'Failed to submit feedback';
+    document.getElementById('feedbackMessage').style.display = 'block';
+  });
+}
+</script>
+{% endblock %}

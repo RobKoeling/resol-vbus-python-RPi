@@ -659,6 +659,98 @@ def month():
     return render_template('history.html', period='month', title=PERIOD_TITLES['month'], now=datetime.now())
 
 
+def get_comfort_level(temp):
+    """Calculate shower comfort level based on predicted tap temperature.
+
+    Args:
+        temp: Predicted temperature in Celsius
+
+    Returns:
+        Tuple of (comfort_level, color) where comfort_level is one of:
+        'Hot', 'Comfortable', 'Luke Warm', 'Cold'
+    """
+    if temp is None:
+        return 'Unknown', '#6b7280'  # gray
+    if temp >= 50:
+        return 'Hot', '#ef4444'  # red
+    elif temp >= 40:
+        return 'Comfortable', '#22c55e'  # green
+    elif temp >= 30:
+        return 'Luke Warm', '#f59e0b'  # orange
+    else:
+        return 'Cold', '#3b82f6'  # blue
+
+
+@app.route('/shower')
+def shower():
+    """Render the shower comfort prediction page (mobile-only feature)."""
+    predicted_temp = None
+    comfort_level = 'Unknown'
+    color = '#6b7280'
+    error_message = None
+
+    if ui_predictor is None:
+        error_message = 'Predictor not available'
+    else:
+        try:
+            predictor = ui_predictor.get_predictor()
+            # Get latest snapshot for current tank temperatures
+            snapshot = get_latest_snapshot()
+            if snapshot and 'parsed' in snapshot:
+                data = snapshot['parsed']
+                device_data = data.get('DeltaSol MX [Regler]', {})
+
+                tank_lower_raw = device_data.get('Temperature Sensor 2')
+                tank_upper_raw = device_data.get('Temperature Sensor 3')
+
+                tank_lower, _ = DBManager._parse_value_and_unit(tank_lower_raw)
+                tank_upper, _ = DBManager._parse_value_and_unit(tank_upper_raw)
+
+                if tank_lower is not None and tank_upper is not None:
+                    predicted_temp = predictor.predict(tank_lower, tank_upper)
+                    comfort_level, color = get_comfort_level(predicted_temp)
+                else:
+                    error_message = 'Tank temperature sensors not available'
+            else:
+                error_message = 'No data available'
+        except Exception as e:
+            error_message = f'Prediction error: {str(e)}'
+
+    return render_template('shower.html',
+                         predicted_temp=predicted_temp,
+                         comfort_level=comfort_level,
+                         color=color,
+                         error_message=error_message,
+                         now=datetime.now())
+
+
+@app.route('/api/shower-feedback', methods=['POST'])
+def api_shower_feedback():
+    """Store user feedback on shower comfort prediction."""
+    data = request.get_json()
+
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    predicted_temp = data.get('predicted_temp')
+    comfort_level = data.get('comfort_level')
+    feedback = data.get('feedback')  # 'thumbs_up' or 'thumbs_down'
+
+    if not all([predicted_temp is not None, comfort_level, feedback]):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    if feedback not in ['thumbs_up', 'thumbs_down']:
+        return jsonify({'error': 'Invalid feedback value'}), 400
+
+    ts = datetime.utcnow().isoformat() + 'Z'
+
+    try:
+        manager.insert_shower_feedback(ts, predicted_temp, comfort_level, feedback)
+        return jsonify({'success': True, 'message': 'Feedback recorded'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     # Run development server for quick testing (listen on all interfaces so other hosts can connect)
     app.run(host='0.0.0.0', port=5000, debug=True)

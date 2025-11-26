@@ -700,8 +700,8 @@ def shower():
                 data = snapshot['data']
                 device_data = data.get('DeltaSol MX [Regler]', {})
 
-                tank_lower_raw = device_data.get('Temperature Sensor 2')
-                tank_upper_raw = device_data.get('Temperature Sensor 3')
+                tank_lower_raw = device_data.get('Temp. Sensor 2')
+                tank_upper_raw = device_data.get('Temp. Sensor 3')
 
                 tank_lower, _ = db.DBManager._parse_value_and_unit(tank_lower_raw)
                 tank_upper, _ = db.DBManager._parse_value_and_unit(tank_upper_raw)

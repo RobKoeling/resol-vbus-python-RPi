@@ -1,4 +1,4 @@
-const CACHE_NAME = 'resol-solar-v1';
+const CACHE_NAME = 'resol-solar-v2';
 const urlsToCache = [
   '/',
   '/static/style.css',

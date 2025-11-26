@@ -696,9 +696,9 @@ def shower():
             predictor = ui_predictor.get_predictor()
             # Get latest snapshot for current tank temperatures
             snapshot = get_latest_snapshot()
-            if snapshot and 'data' in snapshot:
+            if snapshot and snapshot.get('data'):
                 data = snapshot['data']
-                device_data = data.get('DeltaSol MX [Regler]', {})
+                device_data = data.get('DeltaSol SLL [Regler]', {})
 
                 tank_lower_raw = device_data.get('Temp. Sensor 2')
                 tank_upper_raw = device_data.get('Temp. Sensor 3')

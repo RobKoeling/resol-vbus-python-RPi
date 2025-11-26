@@ -751,6 +751,8 @@ def api_shower_feedback():
     ts = datetime.utcnow().isoformat() + 'Z'
 
     try:
+        manager = db.DBManager()
+        manager.connect()
         manager.insert_shower_feedback(ts, predicted_temp, comfort_level, feedback)
         return jsonify({'success': True, 'message': 'Feedback recorded'})
     except Exception as e:

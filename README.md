@@ -1,30 +1,6 @@
 resol-vbus-python
 =================
 
-Python Script to read RESOL VBUS Data over LAN
-<<<<<<< HEAD
-=======
-
-I created this script to display data from my solar installation on an info display (see https://github.com/rellit/InfoMirror).
-
-Usage
------
-
-The script prints data of received VBUS messages to console in JSON format.
-
-To use this data just call by e.g. PHP
-
-```PHP
-$json = `python resol.py`
-```
-
-or just write JSON Data to file via:
-
-```shell
-!#/bin/sh
-resol-vbus-python
-=================
-
 Python script to read RESOL VBUS data over LAN, serial, or stdin and output parsed fields as JSON.
 
 Overview
@@ -91,3 +67,14 @@ Notes & Next Steps
 
 - This repository was ported to Python 3 (see branch `py3-port`). Values are currently emitted as strings with units appended. If you prefer structured numeric output (separate `value` and `unit` fields), I can update the output format.
 - Consider adding tests that replay captures from `Testaufzeichnung/` and a CI workflow to validate the parser on Python 3.
+
+Raspberry Pi access
+--------------------
+
+The collector/UI normally run on a Raspberry Pi on the local network:
+
+- IP address: `192.168.178.28` (DHCP-assigned; may change if not reserved on the router)
+- SSH: `ssh rob@192.168.178.28`
+- Web UI: `http://192.168.178.28:5000/`
+
+If the IP has changed, scan the local subnet to rediscover it, e.g. `nmap -Pn -p 22 --open 192.168.178.0/24`.
